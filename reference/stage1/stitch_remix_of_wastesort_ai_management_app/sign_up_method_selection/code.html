@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+
+<html class="light" lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>WasteSort AI - Daftar</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-surface": "#191c1d",
+                        "background": "#f8f9fa",
+                        "inverse-on-surface": "#f0f1f2",
+                        "primary-container": "#2e7d32",
+                        "on-secondary-fixed-variant": "#603f33",
+                        "on-tertiary": "#ffffff",
+                        "surface-container": "#edeeef",
+                        "on-tertiary-container": "#ffefd6",
+                        "surface": "#f8f9fa",
+                        "outline": "#707a6c",
+                        "on-background": "#191c1d",
+                        "on-primary-fixed-variant": "#005312",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#5b4300",
+                        "error-container": "#ffdad6",
+                        "surface-container-high": "#e7e8e9",
+                        "secondary-container": "#fdcdbc",
+                        "outline-variant": "#bfcaba",
+                        "tertiary-fixed": "#ffdf9e",
+                        "on-tertiary-fixed": "#261a00",
+                        "secondary-fixed": "#ffdbcf",
+                        "primary-fixed-dim": "#88d982",
+                        "surface-variant": "#e1e3e4",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary": "#6d5100",
+                        "tertiary-container": "#8c6800",
+                        "on-secondary-container": "#795548",
+                        "secondary-fixed-dim": "#ebbcac",
+                        "on-primary-fixed": "#002204",
+                        "on-secondary-fixed": "#2e150b",
+                        "surface-container-highest": "#e1e3e4",
+                        "on-error": "#ffffff",
+                        "error": "#ba1a1a",
+                        "on-error-container": "#93000a",
+                        "surface-dim": "#d9dadb",
+                        "primary-fixed": "#a3f69c",
+                        "secondary": "#7a5649",
+                        "on-primary-container": "#cbffc2",
+                        "surface-container-low": "#f3f4f5",
+                        "primary": "#0d631b",
+                        "tertiary-fixed-dim": "#fabd00",
+                        "on-primary": "#ffffff",
+                        "surface-tint": "#1b6d24",
+                        "surface-bright": "#f8f9fa",
+                        "inverse-surface": "#2e3132",
+                        "inverse-primary": "#88d982",
+                        "on-surface-variant": "#40493d"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xl": "64px",
+                        "base": "8px",
+                        "lg": "40px",
+                        "md": "24px",
+                        "gutter": "16px",
+                        "sm": "12px",
+                        "max-width": "1200px",
+                        "xs": "4px",
+                        "margin-mobile": "20px",
+                        "margin-desktop": "auto"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Inter"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "body-lg": ["Inter"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "body-md": ["Inter"],
+                        "label-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-md": ["14px", {"lineHeight": "1.2", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "1.3", "fontWeight": "700"}],
+                        "display-lg": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "1.3", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "label-sm": ["12px", {"lineHeight": "1.2", "fontWeight": "500"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .btn-hover-effect:active {
+            transform: scale(0.96);
+            transition: transform 0.1s ease-in-out;
+        }
+        .eco-mesh-gradient {
+            background: radial-gradient(circle at 10% 20%, rgba(46, 125, 50, 0.05) 0%, transparent 40%),
+                        radial-gradient(circle at 90% 80%, rgba(121, 85, 72, 0.03) 0%, transparent 40%);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body-md overflow-x-hidden eco-mesh-gradient min-h-screen">
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-mobile h-16 bg-surface shadow-sm">
+<button aria-label="Kembali" class="flex items-center justify-center w-10 h-10 rounded-full hover:bg-surface-container-high transition-colors btn-hover-effect">
+<span class="material-symbols-outlined text-primary">arrow_back</span>
+</button>
+<h1 class="text-headline-md font-headline-md font-bold text-primary">WasteSort AI</h1>
+<div class="w-10"></div> <!-- Spacer for centering -->
+</header>
+<main class="pt-24 pb-12 px-margin-mobile flex flex-col items-center justify-center min-h-screen max-w-[480px] mx-auto">
+<!-- Hero Image Context -->
+<div class="relative w-full aspect-video rounded-xl overflow-hidden mb-8 shadow-sm border border-outline-variant/30">
+<img alt="Sustainability Journey" class="w-full h-full object-cover" data-alt="A cinematic, low-angle shot of a lush, vibrant green park in the center of a modern, sustainable city. The lighting is warm and golden during a soft sunrise, emphasizing the fresh, eco-friendly atmosphere. In the background, sleek glass buildings reflect the clear blue sky. The overall visual style is clean, high-contrast, and optimistic, utilizing deep forest greens and soft earthy browns to align with the WasteSort AI brand identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAIpMlcwZRFvdt1Od-qMhPtmn5zCkNGdDKs2y0ELF_Q7gARFjbtBazWClL0kWAiBfIWIqg7ziJt7Nys7UFBkdadkOh6sGkpk1GvqJQQ6Wf5PZ2UUKsNddzkcwU50p74K8U5qpsBbI3dHx_LmyrYTFrOuYMu5DXeJphigH54AOMjdx-SLkS0QeA0wtqv5QHClg2V5AYc7Sif_WbxfATBG7J4z-GcQ4oYBZqG7RsGfVTvRPSS7mGJ6J5Gm1TqqaA6PW85g4yPlDjBA55Z"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+</div>
+<!-- Headline -->
+<div class="text-center mb-10">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-on-surface mb-3 tracking-tight">
+                Mulai Perjalanan Hijau Kamu
+            </h2>
+<p class="text-on-surface-variant font-body-md">
+                Bergabunglah dengan komunitas cerdas yang peduli lingkungan melalui pemilahan sampah berbasis AI.
+            </p>
+</div>
+<!-- Social Auth Options -->
+<div class="w-full space-y-4">
+<!-- Google Sign Up -->
+<button class="w-full flex items-center justify-center gap-3 py-4 px-6 bg-surface-container-lowest border border-outline-variant rounded-full text-on-surface hover:bg-surface-container-low transition-all shadow-sm btn-hover-effect">
+<svg height="20" viewbox="0 0 24 24" width="20">
+<path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
+<path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>
+<path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"></path>
+<path d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 12-4.53z" fill="#EA4335"></path>
+</svg>
+<span class="font-label-md text-label-md">Daftar dengan Google</span>
+</button>
+<!-- Apple Sign Up -->
+<button class="w-full flex items-center justify-center gap-3 py-4 px-6 bg-on-surface text-background rounded-full hover:opacity-90 transition-all shadow-sm btn-hover-effect">
+<svg fill="currentColor" height="20" viewbox="0 0 24 24" width="20">
+<path d="M17.05 20.28c-.98.95-2.05 1.88-3.19 1.88-1.11 0-1.47-.68-2.74-.68-1.28 0-1.68.66-2.73.68-1.1.02-2.31-1.02-3.3-2.45-2.02-2.91-1.55-7.3 1.4-9.05 1.47-.87 3.03-.33 3.94.33.91.66 1.2 1.02 1.35 1.15.15-.13.56-.63 1.48-1.26 1.05-.72 2.36-.93 3.48-.25.56.32 2.12 1.43 2.12 4.14 0 3.52-2.45 6.44-3.81 7.51zM14.28 5.15c-.65.79-1.57 1.34-2.52 1.25-.13-1.12.35-2.22 1.03-3.03.68-.82 1.76-1.42 2.76-1.37.15 1.17-.46 2.19-1.27 3.15z"></path>
+</svg>
+<span class="font-label-md text-label-md">Daftar dengan Apple</span>
+</button>
+<!-- Divider -->
+<div class="flex items-center py-4">
+<div class="flex-grow border-t border-outline-variant"></div>
+<span class="px-4 text-label-sm text-on-surface-variant uppercase tracking-widest">Atau</span>
+<div class="flex-grow border-t border-outline-variant"></div>
+</div>
+<!-- Email Sign Up -->
+<button class="w-full flex items-center justify-center gap-3 py-4 px-6 bg-transparent border-1.5 border-secondary rounded-full text-secondary hover:bg-secondary/5 transition-all btn-hover-effect" style="border-width: 1.5px;">
+<span class="material-symbols-outlined">mail</span>
+<span class="font-label-md text-label-md">Daftar dengan Email</span>
+</button>
+</div>
+<!-- Footer Link -->
+<p class="mt-12 text-on-surface-variant font-body-md">
+            Sudah punya akun? 
+            <a class="text-primary font-bold hover:underline decoration-2 underline-offset-4 ml-1" href="#">Masuk</a>
+</p>
+<!-- Trust Badges / Info -->
+<div class="mt-xl grid grid-cols-3 gap-gutter w-full opacity-60">
+<div class="flex flex-col items-center text-center">
+<span class="material-symbols-outlined text-secondary text-[24px] mb-2">lock</span>
+<span class="text-label-sm font-label-sm text-on-surface-variant">Data Aman</span>
+</div>
+<div class="flex flex-col items-center text-center">
+<span class="material-symbols-outlined text-secondary text-[24px] mb-2">verified_user</span>
+<span class="text-label-sm font-label-sm text-on-surface-variant">Terverifikasi</span>
+</div>
+<div class="flex flex-col items-center text-center">
+<span class="material-symbols-outlined text-secondary text-[24px] mb-2">eco</span>
+<span class="text-label-sm font-label-sm text-on-surface-variant">100% Hijau</span>
+</div>
+</div>
+</main>
+<script>
+        // Micro-interaction for social buttons
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('mousedown', () => {
+                button.classList.add('scale-95');
+            });
+            button.addEventListener('mouseup', () => {
+                button.classList.remove('scale-95');
+            });
+            button.addEventListener('mouseleave', () => {
+                button.classList.remove('scale-95');
+            });
+        });
+
+        // Simple animation on load
+        window.addEventListener('DOMContentLoaded', () => {
+            const mainContent = document.querySelector('main');
+            mainContent.style.opacity = '0';
+            mainContent.style.transform = 'translateY(10px)';
+            mainContent.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
+            
+            requestAnimationFrame(() => {
+                mainContent.style.opacity = '1';
+                mainContent.style.transform = 'translateY(0)';
+            });
+        });
+    </script>
+</body></html>

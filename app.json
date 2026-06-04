@@ -25,6 +25,11 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "scheme": "trashdetection",
+    "plugins": [
+      "expo-router",
+      "expo-font"
+    ]
   }
 }
