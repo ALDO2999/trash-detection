@@ -19,58 +19,66 @@ export default function SignupEmailScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [agreed, setAgreed] = useState(false);
-
   const [nameFocused, setNameFocused] = useState(false);
   const [emailFocused, setEmailFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const isValid =
+    name.trim().length > 0 &&
+    email.includes('@') &&
+    email.includes('.') &&
+    password.length >= 8;
 
   const handleSubmit = () => {
-    if (name && email && password && agreed) {
+    if (!isValid) return;
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
       router.push('/(auth)/otp');
-    }
+    }, 1000);
   };
 
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <Pressable
-            onPress={() => router.back()}
-            style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
-          >
-            <MaterialIcons name="arrow-back" size={24} color={Colors.primary} />
-          </Pressable>
-          <Text style={styles.headerTitle}>WasteSort AI</Text>
-        </View>
+        <Pressable
+          onPress={() => router.back()}
+          style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
+        >
+          <MaterialIcons name="arrow-back" size={24} color={Colors.primary} />
+        </Pressable>
+        <Text style={styles.headerTitle}>Buat Akun</Text>
       </View>
 
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={styles.flex}
       >
         <ScrollView
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={styles.scroll}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
           {/* Hero */}
           <View style={styles.hero}>
-            <View style={styles.logoContainer}>
-              <MaterialIcons name="recycling" size={32} color={Colors.primaryContainer} />
+            <View style={styles.logoIcon}>
+              <MaterialIcons name="recycling" size={32} color={Colors.onPrimaryContainer} />
             </View>
-            <Text style={styles.heroTitle}>Mulai Perubahan</Text>
+            <Text style={styles.heroTitle}>Mulai Perjalanan Hijau</Text>
             <Text style={styles.heroSubtitle}>
-              Bergabunglah dengan komunitas pemilah sampah cerdas berbasis AI.
+              Isi data di bawah — kami akan mengirimkan kode OTP untuk verifikasi email Anda.
             </Text>
           </View>
 
-          {/* Form Card */}
-          <View style={styles.card}>
-            {/* Full Name */}
+          {/* Form */}
+          <View style={styles.form}>
+            {/* Nama */}
             <View style={styles.fieldGroup}>
-              <Text style={[styles.label, nameFocused && styles.labelFocused]}>Nama Lengkap</Text>
+              <Text style={[styles.label, nameFocused && styles.labelFocused]}>
+                Nama Lengkap
+              </Text>
               <View style={[styles.inputWrapper, nameFocused && styles.inputFocused]}>
                 <TextInput
                   style={styles.input}
@@ -80,8 +88,9 @@ export default function SignupEmailScreen() {
                   onChangeText={setName}
                   onFocus={() => setNameFocused(true)}
                   onBlur={() => setNameFocused(false)}
+                  returnKeyType="next"
                 />
-                {name.length > 0 && (
+                {name.trim().length > 0 && (
                   <MaterialIcons name="check-circle" size={18} color={Colors.primary} />
                 )}
               </View>
@@ -90,28 +99,37 @@ export default function SignupEmailScreen() {
 
             {/* Email */}
             <View style={styles.fieldGroup}>
-              <Text style={[styles.label, emailFocused && styles.labelFocused]}>Email</Text>
+              <Text style={[styles.label, emailFocused && styles.labelFocused]}>
+                Alamat Email
+              </Text>
               <View style={[styles.inputWrapper, emailFocused && styles.inputFocused]}>
                 <TextInput
                   style={styles.input}
-                  placeholder="contoh@email.com"
+                  placeholder="nama@email.com"
                   placeholderTextColor={Colors.outline}
                   value={email}
                   onChangeText={setEmail}
                   keyboardType="email-address"
                   autoCapitalize="none"
+                  autoComplete="email"
                   onFocus={() => setEmailFocused(true)}
                   onBlur={() => setEmailFocused(false)}
+                  returnKeyType="next"
                 />
-                {email.includes('@') && (
+                {email.includes('@') && email.includes('.') && (
                   <MaterialIcons name="check-circle" size={18} color={Colors.primary} />
                 )}
               </View>
+              <Text style={styles.hint}>
+                Notifikasi dan kode OTP akan dikirim ke email ini.
+              </Text>
             </View>
 
             {/* Password */}
             <View style={styles.fieldGroup}>
-              <Text style={[styles.label, passwordFocused && styles.labelFocused]}>Kata Sandi</Text>
+              <Text style={[styles.label, passwordFocused && styles.labelFocused]}>
+                Password Akun WasteSort AI
+              </Text>
               <View style={[styles.inputWrapper, passwordFocused && styles.inputFocused]}>
                 <TextInput
                   style={styles.input}
@@ -122,6 +140,8 @@ export default function SignupEmailScreen() {
                   secureTextEntry={!showPassword}
                   onFocus={() => setPasswordFocused(true)}
                   onBlur={() => setPasswordFocused(false)}
+                  returnKeyType="done"
+                  onSubmitEditing={handleSubmit}
                 />
                 <Pressable onPress={() => setShowPassword(!showPassword)}>
                   <MaterialIcons
@@ -132,58 +152,47 @@ export default function SignupEmailScreen() {
                 </Pressable>
               </View>
               <View style={styles.hintRow}>
-                <MaterialIcons name="info-outline" size={13} color={Colors.secondary} />
-                <Text style={styles.hint}>Pastikan menggunakan kombinasi huruf dan angka.</Text>
+                <MaterialIcons name="info-outline" size={13} color={Colors.onSurfaceVariant} />
+                <Text style={styles.hint}>
+                  Ini adalah password untuk masuk ke aplikasi, bukan password email Anda.
+                </Text>
               </View>
-            </View>
-
-            {/* Terms */}
-            <Pressable style={styles.termsRow} onPress={() => setAgreed(!agreed)}>
-              <View style={[styles.checkbox, agreed && styles.checkboxChecked]}>
-                {agreed && <MaterialIcons name="check" size={14} color="#fff" />}
-              </View>
-              <Text style={styles.termsText}>
-                Saya menyetujui{' '}
-                <Text style={styles.termsLink}>Syarat & Ketentuan</Text>
-                {' '}serta{' '}
-                <Text style={styles.termsLink}>Kebijakan Privasi</Text>
-                {' '}WasteSort AI.
-              </Text>
-            </Pressable>
-
-            {/* Submit */}
-            <Pressable
-              style={({ pressed }) => [
-                styles.submitButton,
-                (!name || !email || !password || !agreed) && styles.submitDisabled,
-                pressed && styles.buttonPressed,
-              ]}
-              onPress={handleSubmit}
-            >
-              <Text style={styles.submitText}>Daftar</Text>
-            </Pressable>
-
-            <View style={styles.loginRow}>
-              <Text style={styles.loginText}>Sudah punya akun? </Text>
-              <Pressable onPress={() => router.replace('/(auth)/login')}>
-                <Text style={styles.loginLink}>Masuk di sini</Text>
-              </Pressable>
             </View>
           </View>
 
-          {/* Benefit chips */}
-          <View style={styles.benefitGrid}>
-            {[
-              { icon: 'star' as const, label: 'Reward Menarik' },
-              { icon: 'auto-awesome' as const, label: 'AI Deteksi Cepat' },
-            ].map((b) => (
-              <View key={b.label} style={styles.benefitChip}>
-                <View style={styles.benefitIcon}>
-                  <MaterialIcons name={b.icon} size={18} color={Colors.primary} />
-                </View>
-                <Text style={styles.benefitLabel}>{b.label}</Text>
-              </View>
-            ))}
+          {/* OTP Notice */}
+          <View style={styles.otpNotice}>
+            <MaterialIcons name="mark-email-unread" size={18} color={Colors.primary} />
+            <Text style={styles.otpNoticeText}>
+              Setelah mendaftar, kode OTP akan dikirim ke email Anda untuk verifikasi. Akun dibuat setelah OTP valid.
+            </Text>
+          </View>
+
+          {/* Submit */}
+          <Pressable
+            style={({ pressed }) => [
+              styles.submitButton,
+              !isValid && styles.submitDisabled,
+              pressed && isValid && styles.pressed,
+            ]}
+            onPress={handleSubmit}
+            disabled={!isValid || loading}
+          >
+            {loading
+              ? <MaterialIcons name="hourglass-empty" size={20} color={Colors.onPrimary} />
+              : <MaterialIcons name="send" size={20} color={Colors.onPrimary} />
+            }
+            <Text style={styles.submitText}>
+              {loading ? 'Mengirim OTP...' : 'Daftar & Kirim OTP'}
+            </Text>
+          </Pressable>
+
+          {/* Login link */}
+          <View style={styles.loginRow}>
+            <Text style={styles.loginText}>Sudah punya akun? </Text>
+            <Pressable onPress={() => router.replace('/(auth)/login')}>
+              <Text style={styles.loginLink}>Masuk</Text>
+            </Pressable>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -192,225 +201,93 @@ export default function SignupEmailScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
-  flex: {
-    flex: 1,
-  },
+  container: { flex: 1, backgroundColor: Colors.background },
+  flex: { flex: 1 },
+
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    height: 56,
+    flexDirection: 'row', alignItems: 'center',
+    paddingHorizontal: 20, height: 56, gap: 12,
     backgroundColor: Colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.surfaceContainerHigh,
-  },
-  headerLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
+    borderBottomWidth: 1, borderBottomColor: Colors.surfaceContainerHigh,
   },
   backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
+    width: 40, height: 40, borderRadius: 20,
+    alignItems: 'center', justifyContent: 'center',
   },
   headerTitle: {
-    fontFamily: 'PlusJakartaSans_700Bold',
-    fontSize: 20,
-    color: Colors.primary,
+    fontFamily: 'PlusJakartaSans_700Bold', fontSize: 20, color: Colors.primary,
   },
-  pressed: {
-    opacity: 0.7,
-  },
-  scrollContent: {
-    paddingHorizontal: 20,
-    paddingTop: 28,
-    paddingBottom: 40,
-  },
-  hero: {
-    alignItems: 'center',
-    marginBottom: 24,
-    gap: 6,
-  },
-  logoContainer: {
-    width: 64,
-    height: 64,
-    borderRadius: 20,
+  pressed: { opacity: 0.7 },
+
+  scroll: { paddingHorizontal: 24, paddingTop: 28, paddingBottom: 40, gap: 24 },
+
+  hero: { alignItems: 'center', gap: 8 },
+  logoIcon: {
+    width: 64, height: 64, borderRadius: 20,
     backgroundColor: Colors.primaryContainer,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 4,
+    alignItems: 'center', justifyContent: 'center', marginBottom: 4,
   },
   heroTitle: {
-    fontFamily: 'PlusJakartaSans_700Bold',
-    fontSize: 24,
-    color: Colors.onSurface,
+    fontFamily: 'PlusJakartaSans_700Bold', fontSize: 22, color: Colors.onSurface,
   },
   heroSubtitle: {
-    fontFamily: 'Inter_400Regular',
-    fontSize: 14,
-    color: Colors.onSurfaceVariant,
-    textAlign: 'center',
-    lineHeight: 20,
+    fontFamily: 'Inter_400Regular', fontSize: 14,
+    color: Colors.onSurfaceVariant, textAlign: 'center', lineHeight: 21,
   },
-  card: {
-    backgroundColor: Colors.surfaceContainerLowest,
-    borderRadius: 16,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.04,
-    shadowRadius: 20,
-    elevation: 2,
-    gap: 16,
-    marginBottom: 20,
-  },
-  fieldGroup: {
-    gap: 6,
-  },
+
+  form: { gap: 16 },
+  fieldGroup: { gap: 7 },
   label: {
-    fontFamily: 'Inter_600SemiBold',
-    fontSize: 13,
-    color: Colors.onSurfaceVariant,
-    letterSpacing: 0.1,
-    marginLeft: 2,
+    fontFamily: 'Inter_600SemiBold', fontSize: 13,
+    color: Colors.onSurfaceVariant, letterSpacing: 0.1,
   },
-  labelFocused: {
-    color: Colors.primary,
-  },
+  labelFocused: { color: Colors.primary },
   inputWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F1F1F1',
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    height: 52,
-    borderWidth: 2,
-    borderColor: 'transparent',
+    flexDirection: 'row', alignItems: 'center',
+    backgroundColor: Colors.surfaceContainerLow,
+    borderRadius: 14, paddingHorizontal: 16, height: 54,
+    borderWidth: 2, borderColor: 'transparent',
   },
   inputFocused: {
-    backgroundColor: Colors.surfaceContainerLowest,
-    borderColor: Colors.primary,
+    backgroundColor: Colors.surfaceContainerLowest, borderColor: Colors.primary,
   },
   input: {
-    flex: 1,
-    fontFamily: 'Inter_400Regular',
-    fontSize: 15,
-    color: Colors.onSurface,
+    flex: 1, fontFamily: 'Inter_400Regular', fontSize: 15, color: Colors.onSurface,
   },
-  hintRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    marginLeft: 2,
-  },
+  hintRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 5 },
   hint: {
-    fontFamily: 'Inter_500Medium',
-    fontSize: 11,
-    color: Colors.secondary,
+    flex: 1, fontFamily: 'Inter_400Regular', fontSize: 12,
+    color: Colors.onSurfaceVariant, lineHeight: 17,
   },
-  termsRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 12,
-    marginTop: 4,
+
+  otpNotice: {
+    flexDirection: 'row', gap: 10, alignItems: 'flex-start',
+    backgroundColor: `${Colors.primary}10`, borderRadius: 12, padding: 14,
+    borderWidth: 1, borderColor: `${Colors.primary}20`,
   },
-  checkbox: {
-    width: 20,
-    height: 20,
-    borderRadius: 4,
-    borderWidth: 1.5,
-    borderColor: Colors.outlineVariant,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 1,
+  otpNoticeText: {
+    flex: 1, fontFamily: 'Inter_400Regular', fontSize: 13,
+    color: Colors.onSurfaceVariant, lineHeight: 19,
   },
-  checkboxChecked: {
-    backgroundColor: Colors.primary,
-    borderColor: Colors.primary,
-  },
-  termsText: {
-    flex: 1,
-    fontFamily: 'Inter_400Regular',
-    fontSize: 12,
-    color: Colors.onSurfaceVariant,
-    lineHeight: 18,
-  },
-  termsLink: {
-    fontFamily: 'Inter_600SemiBold',
-    color: Colors.primary,
-  },
+
   submitButton: {
-    backgroundColor: Colors.primary,
-    borderRadius: 999,
-    height: 56,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 4,
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    elevation: 3,
+    backgroundColor: Colors.primary, borderRadius: 999, height: 56,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10,
+    shadowColor: Colors.primary, shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25, shadowRadius: 8, elevation: 4,
   },
-  submitDisabled: {
-    opacity: 0.5,
-  },
-  buttonPressed: {
-    transform: [{ scale: 0.97 }],
-  },
+  submitDisabled: { opacity: 0.45, elevation: 0, shadowOpacity: 0 },
   submitText: {
-    fontFamily: 'PlusJakartaSans_700Bold',
-    fontSize: 16,
-    color: Colors.onPrimary,
+    fontFamily: 'Inter_600SemiBold', fontSize: 16, color: Colors.onPrimary,
   },
+
   loginRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: 'row', justifyContent: 'center', alignItems: 'center',
   },
   loginText: {
-    fontFamily: 'Inter_400Regular',
-    fontSize: 13,
-    color: Colors.onSurfaceVariant,
+    fontFamily: 'Inter_400Regular', fontSize: 14, color: Colors.onSurfaceVariant,
   },
   loginLink: {
-    fontFamily: 'Inter_600SemiBold',
-    fontSize: 13,
-    color: Colors.primary,
-  },
-  benefitGrid: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  benefitChip: {
-    flex: 1,
-    backgroundColor: Colors.surfaceContainerLow,
-    borderRadius: 14,
-    padding: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  benefitIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: Colors.primaryFixed,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  benefitLabel: {
-    fontFamily: 'Inter_500Medium',
-    fontSize: 12,
-    color: Colors.onSurfaceVariant,
-    flex: 1,
+    fontFamily: 'Inter_600SemiBold', fontSize: 14, color: Colors.primary,
   },
 });
