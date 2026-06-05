@@ -116,7 +116,7 @@ export default function LoginScreen() {
             {/* Submit Button */}
             <Pressable
               style={({ pressed }) => [styles.submitButton, pressed && styles.buttonPressed]}
-              onPress={() => {}}
+              onPress={() => router.replace('/(user)')}
             >
               <Text style={styles.submitText}>Masuk</Text>
               <MaterialIcons name="login" size={20} color={Colors.onPrimary} />

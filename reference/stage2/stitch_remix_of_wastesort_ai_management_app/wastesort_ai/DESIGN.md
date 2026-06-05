@@ -1,4 +1,4 @@
- ---
+---
 name: WasteSort AI
 colors:
   surface: '#f8f9fa'

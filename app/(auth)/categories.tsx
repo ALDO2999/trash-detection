@@ -12,12 +12,13 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { Colors } from '../../constants/colors';
 
 const CATEGORIES = [
-  { id: 'plastic', label: 'Plastik', icon: 'recycling' as const },
-  { id: 'paper', label: 'Kertas', icon: 'description' as const },
-  { id: 'metal', label: 'Logam', icon: 'hardware' as const },
-  { id: 'glass', label: 'Kaca', icon: 'wine-bar' as const },
-  { id: 'electronic', label: 'Elektronik', icon: 'devices-other' as const },
-  { id: 'organic', label: 'Organik', icon: 'eco' as const },
+  { id: 'plastic', label: 'Plastic', icon: 'water-drop' as const },
+  { id: 'paper', label: 'Paper', icon: 'description' as const },
+  { id: 'cardboard', label: 'Cardboard', icon: 'inventory-2' as const },
+  { id: 'metal', label: 'Metal', icon: 'hardware' as const },
+  { id: 'battery', label: 'Battery', icon: 'battery-full' as const },
+  { id: 'clothes', label: 'Clothes', icon: 'checkroom' as const },
+  { id: 'shoes', label: 'Shoes', icon: 'roller-skating' as const },
 ];
 
 export default function CategoriesScreen() {

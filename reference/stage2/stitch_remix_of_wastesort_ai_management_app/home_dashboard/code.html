@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;family=Plus+Jakarta+Sans:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .active-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+        body {
+            -webkit-tap-highlight-color: transparent;
+        }
+        .glass-effect {
+            backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.8);
+        }
+        .soft-card {
+            background-color: #F9FAF8;
+            border: 1px solid #E0E0E0;
+            box-shadow: 0px 4px 20px rgba(0,0,0,0.04);
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed": "#ffdf9e",
+                        "error-container": "#ffdad6",
+                        "error": "#ba1a1a",
+                        "primary": "#0d631b",
+                        "outline": "#707a6c",
+                        "on-tertiary-fixed": "#261a00",
+                        "inverse-on-surface": "#f0f1f2",
+                        "on-surface": "#191c1d",
+                        "surface": "#f8f9fa",
+                        "on-primary-fixed": "#002204",
+                        "on-primary-container": "#cbffc2",
+                        "tertiary-container": "#8c6800",
+                        "on-tertiary-container": "#ffefd6",
+                        "on-error-container": "#93000a",
+                        "surface-dim": "#d9dadb",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed-dim": "#fabd00",
+                        "secondary-fixed": "#ffdbcf",
+                        "inverse-surface": "#2e3132",
+                        "inverse-primary": "#88d982",
+                        "on-tertiary-fixed-variant": "#5b4300",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "primary-fixed": "#a3f69c",
+                        "surface-container-highest": "#e1e3e4",
+                        "outline-variant": "#bfcaba",
+                        "on-secondary-container": "#795548",
+                        "on-secondary-fixed-variant": "#603f33",
+                        "background": "#f8f9fa",
+                        "surface-tint": "#1b6d24",
+                        "on-primary": "#ffffff",
+                        "on-secondary-fixed": "#2e150b",
+                        "surface-variant": "#e1e3e4",
+                        "surface-container": "#edeeef",
+                        "secondary-container": "#fdcdbc",
+                        "secondary-fixed-dim": "#ebbcac",
+                        "on-primary-fixed-variant": "#005312",
+                        "surface-container-high": "#e7e8e9",
+                        "primary-fixed-dim": "#88d982",
+                        "secondary": "#7a5649",
+                        "surface-bright": "#f8f9fa",
+                        "on-surface-variant": "#40493d",
+                        "surface-container-low": "#f3f4f5",
+                        "on-background": "#191c1d",
+                        "primary-container": "#2e7d32",
+                        "on-secondary": "#ffffff",
+                        "tertiary": "#6d5100"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "auto",
+                        "lg": "40px",
+                        "xs": "4px",
+                        "gutter": "16px",
+                        "xl": "64px",
+                        "sm": "12px",
+                        "md": "24px",
+                        "margin-mobile": "20px",
+                        "max-width": "1200px",
+                        "base": "8px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Inter"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "body-lg": ["Inter"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "body-md": ["Inter"],
+                        "label-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-md": ["14px", {"lineHeight": "1.2", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                        "display-lg": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-lg": ["32px", {"lineHeight": "1.3", "fontWeight": "700"}],
+                        "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "1.3", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "label-sm": ["12px", {"lineHeight": "1.2", "fontWeight": "500"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen pb-32">
+<!-- Top App Bar -->
+<header class="fixed top-0 w-full z-50 bg-surface dark:bg-inverse-surface shadow-sm">
+<div class="flex items-center justify-between px-margin-mobile md:px-margin-desktop max-w-max-width mx-auto h-16">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed text-2xl">eco</span>
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed">WasteSort AI</h1>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative active:scale-95 transition-transform cursor-pointer">
+<span class="material-symbols-outlined text-on-surface-variant text-2xl">notifications</span>
+<span class="absolute top-0 right-0 w-2.5 h-2.5 bg-error rounded-full border-2 border-surface"></span>
+</div>
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/20">
+<img alt="Profile Avatar" class="w-full h-full object-cover" data-alt="A professional headshot of a young adult male with a friendly smile, set against a clean, soft-focus office background. The lighting is bright and natural, reflecting a modern corporate aesthetic. The color palette features soft neutrals and a hint of warm tones, consistent with a trustworthy and approachable user interface profile image." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC5tNg6OZzGSzru7UDRcPHTORqfmildTPNbobnBclBtV4NLkoIbEqd_MKpJX3f3t9gM7erSiT6zJXqY-Sd51hTEl6KYOwVx0Gc12EiZKZcLj_RnUtxyV2N7r_zD-Pmg_9j37mpBO_zMxsxRaeHawfhD07qvsNFFcg8ZQq2mImYgFPO2J9GfA-Jm0G8Fo46FXsnp-AR9tS0hy1pLhnTR4kNWLVHtENzbUH_rjMrJDWw4XhUfUW09AYAV0XlU1kdyIg38NFdk7hF3xDjf"/>
+</div>
+</div>
+</div>
+</header>
+<main class="mt-20 px-margin-mobile md:px-margin-desktop max-w-max-width mx-auto space-y-6">
+<!-- Greeting Section -->
+<section class="flex flex-col gap-1">
+<p class="font-label-md text-label-md text-on-surface-variant">Selamat pagi,</p>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface font-bold">Halo, Alex!</h2>
+</section>
+<!-- Warning Banner -->
+<div class="bg-tertiary-container text-on-tertiary-container p-4 rounded-xl flex items-center gap-3 shadow-sm active:scale-[0.98] transition-transform cursor-pointer">
+<span class="material-symbols-outlined">info</span>
+<p class="font-label-md text-label-md flex-1">Penting: Perubahan rate poin mulai minggu depan. Cek selengkapnya.</p>
+<span class="material-symbols-outlined">chevron_right</span>
+</div>
+<!-- EcoPoints & Level Card -->
+<div class="bg-primary-container text-on-primary-container p-6 rounded-2xl shadow-lg relative overflow-hidden active:scale-[0.99] transition-transform cursor-pointer" onclick="window.location.href='#history'">
+<div class="absolute top-0 right-0 p-4 opacity-10">
+<span class="material-symbols-outlined text-9xl" style="font-variation-settings: 'FILL' 1;">eco</span>
+</div>
+<div class="flex justify-between items-start mb-6">
+<div>
+<p class="font-label-sm text-label-sm opacity-80 mb-1">Total EcoPoints</p>
+<h3 class="font-display-lg text-4xl font-extrabold tracking-tight">2,450 pts</h3>
+</div>
+<div class="bg-white/20 px-3 py-1.5 rounded-full">
+<p class="font-label-sm text-label-sm font-bold">Rank #5 Minggu Ini</p>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between font-label-md text-label-md">
+<span>Level: Eco Warrior</span>
+<span>80%</span>
+</div>
+<div class="w-full bg-white/20 h-3 rounded-full overflow-hidden">
+<div class="bg-on-primary-container h-full rounded-full transition-all duration-1000" style="width: 80%"></div>
+</div>
+<p class="font-label-sm text-label-sm opacity-70">550 pts lagi untuk naik level</p>
+</div>
+</div>
+<!-- Streak & Activity Tracker -->
+<div class="soft-card p-5 rounded-2xl">
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-error" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+<h4 class="font-label-md text-label-md">Streak 4 Hari</h4>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Mon - Sun</p>
+</div>
+<div class="flex justify-between gap-2 mb-4">
+<!-- Streak Dots -->
+<div class="flex-1 flex flex-col items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-sm">check</span>
+</div>
+<span class="text-[10px] font-bold opacity-60">M</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-sm">check</span>
+</div>
+<span class="text-[10px] font-bold opacity-60">T</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-sm">check</span>
+</div>
+<span class="text-[10px] font-bold opacity-60">W</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-sm">check</span>
+</div>
+<span class="text-[10px] font-bold opacity-60">T</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2">
+<div class="w-8 h-8 rounded-full border-2 border-error border-dashed flex items-center justify-center text-error animate-pulse">
+<span class="material-symbols-outlined text-sm">priority_high</span>
+</div>
+<span class="text-[10px] font-bold text-error">F</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2 opacity-30">
+<div class="w-8 h-8 rounded-full bg-outline-variant flex items-center justify-center"></div>
+<span class="text-[10px] font-bold">S</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2 opacity-30">
+<div class="w-8 h-8 rounded-full bg-outline-variant flex items-center justify-center"></div>
+<span class="text-[10px] font-bold">S</span>
+</div>
+</div>
+<div class="bg-error-container/40 p-3 rounded-lg border border-error/10 flex items-center gap-2">
+<span class="material-symbols-outlined text-error text-lg">warning</span>
+<p class="font-label-sm text-label-sm text-error font-medium">Streak terancam putus hari ini! Ayo scan sampahmu.</p>
+</div>
+</div>
+<!-- Quick Actions -->
+<div class="grid grid-cols-3 gap-3">
+<button class="bg-primary text-on-primary flex flex-col items-center justify-center gap-2 p-4 rounded-2xl shadow-sm hover:opacity-90 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-2xl">photo_camera</span>
+<span class="font-label-sm text-[11px] font-bold">Scan Sekarang</span>
+</button>
+<button class="bg-surface-container-high text-on-surface flex flex-col items-center justify-center gap-2 p-4 rounded-2xl shadow-sm active:scale-95 transition-all">
+<span class="material-symbols-outlined text-2xl text-primary">location_on</span>
+<span class="font-label-sm text-[11px] font-bold">Drop-off</span>
+</button>
+<button class="bg-surface-container-high text-on-surface flex flex-col items-center justify-center gap-2 p-4 rounded-2xl shadow-sm active:scale-95 transition-all">
+<span class="material-symbols-outlined text-2xl text-tertiary">redeem</span>
+<span class="font-label-sm text-[11px] font-bold">Tukar Poin</span>
+</button>
+</div>
+<!-- Active Quests -->
+<section class="space-y-4">
+<div class="flex items-center justify-between">
+<h4 class="font-headline-md text-lg font-bold">Misi Aktif</h4>
+<a class="text-primary font-label-md text-label-md" href="#">Lihat Semua</a>
+</div>
+<div class="space-y-3">
+<div class="soft-card p-4 rounded-xl flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container">
+<span class="material-symbols-outlined">recycling</span>
+</div>
+<div class="flex-1 space-y-1.5">
+<div class="flex justify-between items-center">
+<span class="font-label-md text-label-md font-bold">Plastic Pioneer</span>
+<span class="font-label-sm text-label-sm text-primary">90%</span>
+</div>
+<div class="w-full bg-outline-variant/30 h-1.5 rounded-full">
+<div class="bg-primary h-full rounded-full" style="width: 90%"></div>
+</div>
+</div>
+</div>
+<div class="soft-card p-4 rounded-xl flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-tertiary-fixed flex items-center justify-center text-on-tertiary-fixed">
+<span class="material-symbols-outlined">description</span>
+</div>
+<div class="flex-1 space-y-1.5">
+<div class="flex justify-between items-center">
+<span class="font-label-md text-label-md font-bold">Paper Master</span>
+<span class="font-label-sm text-label-sm text-primary">75%</span>
+</div>
+<div class="w-full bg-outline-variant/30 h-1.5 rounded-full">
+<div class="bg-primary h-full rounded-full" style="width: 75%"></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Education/Tips Section -->
+<section class="space-y-4 pb-8">
+<h4 class="font-headline-md text-lg font-bold">Tips &amp; Artikel</h4>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="soft-card rounded-2xl overflow-hidden group">
+<div class="h-40 relative">
+<img alt="Recycling glass" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A close-up, high-quality photograph of various clean glass bottles and jars sorted into a modern, minimalist recycling bin. The lighting is crisp and bright, emphasizing a clean and sustainable lifestyle. The background is a soft, neutral-colored contemporary kitchen, aligning with an eco-conscious and organized home environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBkQt1q4f0iILXXw5ZnZgvTwvbgw34dABgdlk2QdwYNkPY5B8F0jJ_J-FKET8yrLy1ox-RN5QGiza8yppVyRtnFcaQbcy51dzsnFwdUp9TMU2nLNUnGl511MRzuoG-CaqORfo1euV6_XWwSLH84t2GGVAJs4L3g3EY9ZVmPXWbLItXFYgSpuziV2EPJvLIu1rB10B4A_CNkKJogEbxWMUFHhazcyXHHi4YEWaNo5UjpkG2NhXv5NN_6FR-Y1XJCMGzhGM7TOzMjnuO2"/>
+<div class="absolute top-3 left-3 bg-white/90 glass-effect px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider">Terpopuler</div>
+</div>
+<div class="p-4">
+<h5 class="font-label-md text-label-md font-bold mb-2">5 Cara Mudah Memilah Sampah di Rumah</h5>
+<p class="font-label-sm text-label-sm text-on-surface-variant line-clamp-2">Memulai gaya hidup eco-friendly tidak harus sulit. Pelajari langkah-langkah dasar memilah sampah plastik, kertas, dan organik.</p>
+</div>
+</div>
+<div class="soft-card rounded-2xl overflow-hidden group">
+<div class="h-40 relative">
+<img alt="Compost Bin" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A lush and vibrant close-up of organic waste being turned into rich, dark compost in a stylish, well-designed indoor composting bin. Small green sprouts are visible nearby, symbolizing growth and circularity. The scene is bathed in warm, golden afternoon light, creating an optimistic and natural feel that promotes environmental responsibility." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAE_m6klGFqSJan19j3FLuXC_WMgBc0ekOvkNI4dlR_nzn5ii4ZrGtadpkuvWazWpgV_x8kyIwDXTdQF09oGLYqZOrjsN7T9_A4UtLDRrchn0rKbv-zk_td3gvX0_U38TnlBV2AIkbfLfNUHTDPXX2EDHKbwmoL5c2XmN74gpjfV7wQEXQUOWkwGdrVa78FODXKBaLnelppPENF5jTkhyWkzgcKWBlFsr4tqprThOO48xSwg50iWf4S7VCJGJ03Py1x_LLzZS9oW5j8"/>
+</div>
+<div class="p-4">
+<h5 class="font-label-md text-label-md font-bold mb-2">Panduan Kompos untuk Pemula</h5>
+<p class="font-label-sm text-label-sm text-on-surface-variant line-clamp-2">Jangan buang sisa makananmu! Ubah menjadi pupuk organik cair yang bermanfaat bagi tanaman hias kesayanganmu.</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center py-2 px-4 pb-safe bg-surface dark:bg-inverse-surface shadow-[0px_-4px_20px_rgba(0,0,0,0.04)] z-50 rounded-t-xl">
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-4 py-1 active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined active-icon">home</span>
+<span class="font-label-sm text-label-sm">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors px-4 py-1 rounded-full active:scale-90" href="#">
+<span class="material-symbols-outlined">center_focus_strong</span>
+<span class="font-label-sm text-label-sm">Identify</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors px-4 py-1 rounded-full active:scale-90" href="#">
+<span class="material-symbols-outlined">distance</span>
+<span class="font-label-sm text-label-sm">Locations</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors px-4 py-1 rounded-full active:scale-90" href="#">
+<span class="material-symbols-outlined">workspace_premium</span>
+<span class="font-label-sm text-label-sm">Rewards</span>
+</a>
+</nav>
+<script>
+        // Simple micro-interaction for the progress bar on load
+        window.addEventListener('DOMContentLoaded', () => {
+            const progressBars = document.querySelectorAll('.bg-on-primary-container');
+            progressBars.forEach(bar => {
+                const targetWidth = bar.style.width;
+                bar.style.width = '0%';
+                setTimeout(() => {
+                    bar.style.width = targetWidth;
+                }, 300);
+            });
+        });
+
+        // Toggle notification badge (simulation)
+        const notificationBtn = document.querySelector('.material-symbols-outlined[data-icon="notifications"]');
+        if (notificationBtn) {
+            notificationBtn.parentElement.addEventListener('click', () => {
+                const badge = notificationBtn.nextElementSibling;
+                if (badge) badge.style.display = 'none';
+            });
+        }
+    </script>
+</body></html>

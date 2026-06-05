@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Reject Submission - WasteSort AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-surface": "#191c1d",
+                        "error-container": "#ffdad6",
+                        "tertiary": "#6d5100",
+                        "surface-tint": "#1b6d24",
+                        "secondary-fixed": "#ffdbcf",
+                        "on-primary-fixed": "#002204",
+                        "on-background": "#191c1d",
+                        "surface-container-low": "#f3f4f5",
+                        "surface-container-highest": "#e1e3e4",
+                        "outline-variant": "#bfcaba",
+                        "surface": "#f8f9fa",
+                        "inverse-surface": "#2e3132",
+                        "secondary-fixed-dim": "#ebbcac",
+                        "on-secondary-fixed": "#2e150b",
+                        "surface-bright": "#f8f9fa",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed": "#ffdf9e",
+                        "secondary-container": "#fdcdbc",
+                        "on-tertiary-fixed-variant": "#5b4300",
+                        "surface-container": "#edeeef",
+                        "background": "#f8f9fa",
+                        "on-secondary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "surface-container-high": "#e7e8e9",
+                        "inverse-primary": "#88d982",
+                        "error": "#ba1a1a",
+                        "primary": "#0d631b",
+                        "on-tertiary-fixed": "#261a00",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-container": "#ffefd6",
+                        "primary-container": "#2e7d32",
+                        "primary-fixed": "#a3f69c",
+                        "on-primary-fixed-variant": "#005312",
+                        "primary-fixed-dim": "#88d982",
+                        "secondary": "#7a5649",
+                        "tertiary-fixed-dim": "#fabd00",
+                        "on-secondary-fixed-variant": "#603f33",
+                        "surface-variant": "#e1e3e4",
+                        "on-tertiary": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "inverse-on-surface": "#f0f1f2",
+                        "surface-dim": "#d9dadb",
+                        "on-secondary-container": "#795548",
+                        "on-primary-container": "#cbffc2",
+                        "tertiary-container": "#8c6800",
+                        "outline": "#707a6c",
+                        "on-surface-variant": "#40493d"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "base": "8px",
+                        "margin-desktop": "auto",
+                        "lg": "40px",
+                        "gutter": "16px",
+                        "margin-mobile": "20px",
+                        "sm": "12px",
+                        "md": "24px",
+                        "max-width": "1200px",
+                        "xs": "4px",
+                        "xl": "64px"
+                    },
+                    "fontFamily": {
+                        "label-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "label-md": ["Inter"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-sm": ["12px", {"lineHeight": "1.2", "fontWeight": "500"}],
+                        "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "headline-md": ["24px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "1.3", "fontWeight": "700"}],
+                        "label-md": ["14px", {"lineHeight": "1.2", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "1.3", "fontWeight": "700"}],
+                        "display-lg": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .rejection-card {
+            border: 1px solid #E0E0E0;
+            box-shadow: 0px 4px 20px rgba(0,0,0,0.04);
+        }
+        .radio-custom:checked + label {
+            background-color: #f3f4f5;
+            border-color: #0d631b;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body-md selection:bg-primary-fixed">
+<!-- Top Navigation -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-mobile h-16 bg-surface shadow-sm">
+<div class="flex items-center gap-4">
+<button class="hover:bg-surface-container-high transition-colors p-2 rounded-full active:scale-95 duration-100" onclick="window.history.back()">
+<span class="material-symbols-outlined text-primary">arrow_back</span>
+</button>
+<h1 class="text-headline-md font-headline-md font-bold text-primary">Reject Submission</h1>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+</div>
+</header>
+<main class="pt-24 pb-12 px-margin-mobile max-w-max-width mx-auto">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Left: Context Summary -->
+<div class="lg:col-span-5 space-y-md">
+<div class="rejection-card bg-surface-container-lowest rounded-xl p-md">
+<h2 class="font-headline-md text-headline-md mb-sm text-on-surface">Submission Details</h2>
+<div class="aspect-video w-full rounded-lg overflow-hidden bg-surface-container mb-md relative">
+<img class="w-full h-full object-cover" data-alt="A detailed close-up of a household recycling bin containing unsorted plastic bottles and paper waste. The lighting is bright and even, highlighting the textures of different materials in a professional waste management context. The scene is clean but depicts a sorting error that needs an officer's attention. The overall aesthetic is modern, high-definition, and corporate." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBCSILvlo9nflHy0AKPJgI9K-900IDaknNvGTEYy7rP7bPs4Tfbcs2IlCrG5VOZB-oE-EwlQ4o8veTkUjrYZ1HZvRKpX4nvEWTMp9AguDNqkAsuk3Vc9OD_gSrgk3Kxi10xVFJz6xfrMhOZZ-iPoDAwgpGtjYKSSoXcCLtc8YgLIdvBPdSrFqmcoguSwWmxOW09m1eG9JA7Vgl6HIpQu9Dieb3DK_tUEhEf0bVeKgceB_e8Q4Ipi4ewPxvkMLqI0dE1tHPtUEojQWUX"/>
+<div class="absolute top-2 right-2 bg-error text-on-error px-3 py-1 rounded-full text-label-sm font-label-sm">
+                            Flagged for Review
+                        </div>
+</div>
+<div class="space-y-sm">
+<div class="flex justify-between items-center border-b border-outline-variant pb-2">
+<span class="text-on-surface-variant font-label-md">User ID</span>
+<span class="font-label-md text-on-surface">@EcoWarrior_23</span>
+</div>
+<div class="flex justify-between items-center border-b border-outline-variant pb-2">
+<span class="text-on-surface-variant font-label-md">Waste Type</span>
+<span class="font-label-md text-on-surface">Plastic / PET</span>
+</div>
+<div class="flex justify-between items-center border-b border-outline-variant pb-2">
+<span class="text-on-surface-variant font-label-md">Timestamp</span>
+<span class="font-label-md text-on-surface">Oct 24, 14:32</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-on-surface-variant font-label-md">Location</span>
+<span class="font-label-md text-on-surface">Central Hub A12</span>
+</div>
+</div>
+</div>
+<div class="p-md rounded-xl bg-error-container text-on-error-container flex gap-3 items-start">
+<span class="material-symbols-outlined mt-0.5">info</span>
+<div>
+<p class="font-label-md font-bold">Officer Authority</p>
+<p class="text-label-sm">Rejecting this submission will notify the user immediately. Please ensure the reason is accurate to maintain system trust.</p>
+</div>
+</div>
+</div>
+<!-- Right: Rejection Form -->
+<div class="lg:col-span-7">
+<form class="rejection-card bg-surface-container-lowest rounded-xl p-md lg:p-lg space-y-lg" id="rejectionForm">
+<section>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-md">Select Rejection Reason</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-sm">
+<!-- Reason 1 -->
+<div class="relative">
+<input checked="" class="peer hidden" id="reason1" name="reason" type="radio" value="Sampah tidak sesuai"/>
+<label class="flex items-center gap-3 p-4 border border-outline-variant rounded-xl cursor-pointer hover:bg-surface-container transition-all active:scale-95 peer-checked:border-primary peer-checked:bg-primary-container peer-checked:bg-opacity-5" for="reason1">
+<span class="material-symbols-outlined text-on-surface-variant peer-checked:text-primary">wrong_location</span>
+<span class="font-label-md text-on-surface">Sampah tidak sesuai</span>
+</label>
+</div>
+<!-- Reason 2 -->
+<div class="relative">
+<input class="peer hidden" id="reason2" name="reason" type="radio" value="Sampah tercampur"/>
+<label class="flex items-center gap-3 p-4 border border-outline-variant rounded-xl cursor-pointer hover:bg-surface-container transition-all active:scale-95 peer-checked:border-primary peer-checked:bg-primary-container peer-checked:bg-opacity-5" for="reason2">
+<span class="material-symbols-outlined text-on-surface-variant">layers_clear</span>
+<span class="font-label-md text-on-surface">Sampah tercampur</span>
+</label>
+</div>
+<!-- Reason 3 -->
+<div class="relative">
+<input class="peer hidden" id="reason3" name="reason" type="radio" value="QR kadaluarsa"/>
+<label class="flex items-center gap-3 p-4 border border-outline-variant rounded-xl cursor-pointer hover:bg-surface-container transition-all active:scale-95 peer-checked:border-primary peer-checked:bg-primary-container peer-checked:bg-opacity-5" for="reason3">
+<span class="material-symbols-outlined text-on-surface-variant">timer_off</span>
+<span class="font-label-md text-on-surface">QR kadaluarsa</span>
+</label>
+</div>
+<!-- Reason 4 -->
+<div class="relative">
+<input class="peer hidden" id="reason4" name="reason" type="radio" value="Lainnya"/>
+<label class="flex items-center gap-3 p-4 border border-outline-variant rounded-xl cursor-pointer hover:bg-surface-container transition-all active:scale-95 peer-checked:border-primary peer-checked:bg-primary-container peer-checked:bg-opacity-5" for="reason4">
+<span class="material-symbols-outlined text-on-surface-variant">more_horiz</span>
+<span class="font-label-md text-on-surface">Lainnya</span>
+</label>
+</div>
+</div>
+</section>
+<section>
+<label class="block font-label-md text-on-surface mb-2" for="notes">Additional Notes (Optional)</label>
+<textarea class="w-full bg-[#F1F1F1] border-none rounded-xl p-md focus:bg-white focus:ring-2 focus:ring-primary transition-all text-body-md placeholder:text-on-surface-variant" id="notes" name="notes" placeholder="Provide specific details about the rejection to help the user improve..." rows="4"></textarea>
+<p class="text-label-sm text-on-surface-variant mt-2 italic">User will see these notes in their notification center.</p>
+</section>
+<div class="flex flex-col sm:flex-row gap-4 pt-md border-t border-outline-variant">
+<button class="flex-1 bg-primary text-on-primary font-label-md px-xl py-4 rounded-full shadow-sm hover:opacity-90 transition-all active:scale-95 flex items-center justify-center gap-2" type="submit">
+<span class="material-symbols-outlined">block</span>
+                            Confirm Rejection
+                        </button>
+<button class="flex-1 bg-transparent text-secondary font-label-md px-xl py-4 rounded-full border-[1.5px] border-secondary hover:bg-secondary-fixed transition-all active:scale-95 flex items-center justify-center gap-2" onclick="window.history.back()" type="button">
+<span class="material-symbols-outlined">arrow_back_ios</span>
+                            Back to Review
+                        </button>
+</div>
+</form>
+</div>
+</div>
+</main>
+<!-- Simple Success Modal (Hidden by default) -->
+<div class="fixed inset-0 z-[100] hidden items-center justify-center px-4" id="successModal">
+<div class="absolute inset-0 bg-on-surface opacity-60 backdrop-blur-sm"></div>
+<div class="relative bg-surface-container-lowest rounded-2xl p-xl max-w-sm w-full text-center shadow-2xl animate-in fade-in zoom-in duration-300">
+<div class="w-20 h-20 bg-primary-container rounded-full flex items-center justify-center mx-auto mb-md">
+<span class="material-symbols-outlined text-on-primary-container text-[48px]">check_circle</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-sm">Rejection Confirmed</h2>
+<p class="text-on-surface-variant font-body-md mb-lg">Submission has been marked as invalid. The user has been notified.</p>
+<button class="w-full bg-primary text-on-primary font-label-md py-3 rounded-full active:scale-95 transition-transform" onclick="window.location.reload()">
+                Return to Dashboard
+            </button>
+</div>
+</div>
+<script>
+        document.getElementById('rejectionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            // Show micro-interaction feedback
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalContent = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<span class="material-symbols-outlined animate-spin">sync</span> Processing...';
+            submitBtn.disabled = true;
+
+            setTimeout(() => {
+                document.getElementById('successModal').classList.remove('hidden');
+                document.getElementById('successModal').classList.add('flex');
+            }, 800);
+        });
+
+        // Atmospheric effect: Soft pulse on the error flag
+        const errorFlag = document.querySelector('.bg-error');
+        if (errorFlag) {
+            let opacity = 1;
+            let direction = -1;
+            setInterval(() => {
+                opacity += 0.05 * direction;
+                if (opacity <= 0.7 || opacity >= 1) direction *= -1;
+                errorFlag.style.opacity = opacity;
+            }, 100);
+        }
+    </script>
+</body></html>

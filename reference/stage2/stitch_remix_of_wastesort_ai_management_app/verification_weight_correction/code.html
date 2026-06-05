@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Plus+Jakarta+Sans:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-surface": "#191c1d",
+                        "error-container": "#ffdad6",
+                        "tertiary": "#6d5100",
+                        "surface-tint": "#1b6d24",
+                        "secondary-fixed": "#ffdbcf",
+                        "on-primary-fixed": "#002204",
+                        "on-background": "#191c1d",
+                        "surface-container-low": "#f3f4f5",
+                        "surface-container-highest": "#e1e3e4",
+                        "outline-variant": "#bfcaba",
+                        "surface": "#f8f9fa",
+                        "inverse-surface": "#2e3132",
+                        "secondary-fixed-dim": "#ebbcac",
+                        "on-secondary-fixed": "#2e150b",
+                        "surface-bright": "#f8f9fa",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed": "#ffdf9e",
+                        "secondary-container": "#fdcdbc",
+                        "on-tertiary-fixed-variant": "#5b4300",
+                        "surface-container": "#edeeef",
+                        "background": "#f8f9fa",
+                        "on-secondary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "surface-container-high": "#e7e8e9",
+                        "inverse-primary": "#88d982",
+                        "error": "#ba1a1a",
+                        "primary": "#0d631b",
+                        "on-tertiary-fixed": "#261a00",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-container": "#ffefd6",
+                        "primary-container": "#2e7d32",
+                        "primary-fixed": "#a3f69c",
+                        "on-primary-fixed-variant": "#005312",
+                        "primary-fixed-dim": "#88d982",
+                        "secondary": "#7a5649",
+                        "tertiary-fixed-dim": "#fabd00",
+                        "on-secondary-fixed-variant": "#603f33",
+                        "surface-variant": "#e1e3e4",
+                        "on-tertiary": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "inverse-on-surface": "#f0f1f2",
+                        "surface-dim": "#d9dadb",
+                        "on-secondary-container": "#795548",
+                        "on-primary-container": "#cbffc2",
+                        "tertiary-container": "#8c6800",
+                        "outline": "#707a6c",
+                        "on-surface-variant": "#40493d"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "base": "8px",
+                        "margin-desktop": "auto",
+                        "lg": "40px",
+                        "gutter": "16px",
+                        "margin-mobile": "20px",
+                        "sm": "12px",
+                        "md": "24px",
+                        "max-width": "1200px",
+                        "xs": "4px",
+                        "xl": "64px"
+                    },
+                    "fontFamily": {
+                        "label-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "label-md": ["Inter"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-sm": ["12px", {"lineHeight": "1.2", "fontWeight": "500"}],
+                        "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "headline-md": ["24px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "1.3", "fontWeight": "700"}],
+                        "label-md": ["14px", {"lineHeight": "1.2", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "1.3", "fontWeight": "700"}],
+                        "display-lg": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body-md antialiased min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-mobile h-16 bg-surface shadow-sm">
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-high transition-colors active:scale-95 duration-100 ease-in-out">
+<span class="material-symbols-outlined text-primary">arrow_back</span>
+</button>
+<h1 class="text-headline-md font-headline-md font-bold text-primary">Submission #WS-241025</h1>
+</div>
+<div class="hidden md:flex items-center gap-6">
+<span class="text-label-md font-label-md text-on-surface-variant">Admin Dashboard</span>
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container font-bold text-xs">CN</div>
+</div>
+</header>
+<main class="mt-24 px-margin-mobile max-w-screen-xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Left Column: Items List -->
+<div class="lg:col-span-8 space-y-md">
+<!-- User Info Card -->
+<div class="bg-surface-container-lowest border border-outline-variant p-md rounded-xl flex items-center gap-md shadow-sm">
+<div class="w-12 h-12 rounded-full overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="A professional studio headshot of a friendly man with short dark hair, wearing a clean white shirt. The lighting is soft and even, creating a warm, approachable atmosphere against a minimalist light grey background. The image has a high-quality, corporate-yet-human aesthetic, consistent with a modern green-tech application's user profile styling." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCNw3lM053WcpifcKSJaNnaQRrZPJbyqZZSzuRlUxEoWo_ZlM-lTDc47cktXNrxEn_9S8U3Zl0oWpeBdRFctJ3mbpsm-e2xgBjhV7P89bQ6dregEdC3xtcF0IzKOtzo8a3s1mF5ivLnFIaX18HsyH7lneu9FrJjJdGOJvIUuy7SIEatQG8QiD-jPJa8d3fQpWCMWneb3lJnB7rVVKE46xE8eXxyE-0y9rmwbBfeEBOcrn3OmjujAcncfYBknzzKQPSyoaKM1fx15wHz"/>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-xs">Submitting User</p>
+<h2 class="font-headline-md text-headline-md text-on-surface">Christophe N. H.</h2>
+</div>
+<div class="ml-auto text-right">
+<span class="inline-flex items-center px-3 py-1 rounded-full bg-tertiary-fixed text-on-tertiary-fixed text-label-md font-label-md">
+<span class="material-symbols-outlined mr-1 text-base">verified</span> Verified User
+                    </span>
+</div>
+</div>
+<!-- Items List -->
+<h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Item Verification</h3>
+<!-- Item 1: Botol PET -->
+<div class="bg-surface-container-lowest border border-outline-variant p-md rounded-xl shadow-sm transition-all hover:shadow-md">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-md">
+<div class="flex items-center gap-md">
+<div class="w-16 h-16 rounded-lg bg-surface-container flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A collection of clear crushed PET plastic bottles arranged neatly on a clean white surface. The lighting is bright and airy, emphasizing the transparency and recyclability of the material. The composition is modern and eco-conscious, using soft green shadows to maintain a clean, high-end waste management app visual style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCIHnLqUuYTij0Y1MoU5vy9-cxkfAjXqmE_K9ztcdnnZgmBtW94zvSf0eT8ESn97aop0pSOPjbt2kd3QYBVMkWY9os1PttoPrNuCiKSVT7zU_tmZfqRE5tI9Vj7XwShwj09f79ouwKlzo-hW6VayBCPb6vMWGdRacdRcmY5PmbFCPu30CFcaUVufiINWnwPXnrBSd8in6hc1mIL2KSrmYkoKVy36sRTprV47k9MHV11Tz0z1deEF2H4suYxcjyVVjdsMESAI15NRtN3"/>
+</div>
+<div>
+<h4 class="font-headline-md text-headline-md text-on-surface">Botol PET</h4>
+<div class="flex items-center gap-xs mt-xs">
+<span class="px-2 py-0.5 rounded bg-primary-container/10 text-primary text-label-sm font-label-sm">Plastic</span>
+<span class="text-label-sm text-on-surface-variant">ID: PET-01</span>
+</div>
+</div>
+</div>
+<div class="flex items-end gap-lg">
+<div class="text-center">
+<p class="text-label-sm text-on-surface-variant mb-1">AI Estimate</p>
+<p class="text-headline-md font-headline-md text-outline">300g</p>
+</div>
+<div class="w-32">
+<label class="block text-label-sm text-on-surface-variant mb-1">Actual Weight (g)</label>
+<div class="relative">
+<input class="w-full bg-[#F1F1F1] border-none rounded-lg px-3 py-2 text-headline-md font-headline-md text-primary focus:ring-2 focus:ring-primary focus:bg-white transition-all text-center" oninput="calculatePoints()" type="number" value="320"/>
+<div class="absolute -right-2 -top-2 w-6 h-6 bg-primary text-white rounded-full flex items-center justify-center scale-75 animate-pulse">
+<span class="material-symbols-outlined text-xs">trending_up</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Item 2: Kardus -->
+<div class="bg-surface-container-lowest border border-outline-variant p-md rounded-xl shadow-sm transition-all hover:shadow-md">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-md">
+<div class="flex items-center gap-md">
+<div class="w-16 h-16 rounded-lg bg-surface-container flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A stack of folded corrugated cardboard boxes in various shades of brown. The image is shot from a top-down perspective with clean lighting that highlights the texture of the cardboard. The background is a soft neutral grey, creating a professional and organized look for a recycling identification system." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAs_Y62TW_Z4AGOhgiO9c3_3zQbgNQCXAhzt_3FK5D9xNt6fSATX6GkfL80sLWYFhGaIGcDjpq8GSptLNLcY5HTg2HiGL2MmPHb74AqsVguIH1HSXuMrQRNl6CRpQXKwcUqcRosgkQypg942IC_SdmegrOJeJYfnokHxa_exSx5Hi8Ho9hF-DK_AxCH03uPu69VgdRa4NA5_3Awvh5VyoR0ujbSRNM0bR159uwJo9IDxuH7jojBi_c79PegPvKMPmN2-ssrFgMY1so1"/>
+</div>
+<div>
+<h4 class="font-headline-md text-headline-md text-on-surface">Kardus</h4>
+<div class="flex items-center gap-xs mt-xs">
+<span class="px-2 py-0.5 rounded bg-secondary-container/20 text-secondary text-label-sm font-label-sm">Paper/Cardboard</span>
+<span class="text-label-sm text-on-surface-variant">ID: KRD-02</span>
+</div>
+</div>
+</div>
+<div class="flex items-end gap-lg">
+<div class="text-center">
+<p class="text-label-sm text-on-surface-variant mb-1">AI Estimate</p>
+<p class="text-headline-md font-headline-md text-outline">1.2kg</p>
+</div>
+<div class="w-32">
+<label class="block text-label-sm text-on-surface-variant mb-1">Actual Weight (kg)</label>
+<div class="relative">
+<input class="w-full bg-[#F1F1F1] border-none rounded-lg px-3 py-2 text-headline-md font-headline-md text-primary focus:ring-2 focus:ring-primary focus:bg-white transition-all text-center" oninput="calculatePoints()" step="0.1" type="number" value="1.3"/>
+<div class="absolute -right-2 -top-2 w-6 h-6 bg-primary text-white rounded-full flex items-center justify-center scale-75 animate-pulse">
+<span class="material-symbols-outlined text-xs">trending_up</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<button class="w-full py-3 border-2 border-dashed border-outline-variant rounded-xl text-on-surface-variant font-label-md hover:bg-surface-container hover:border-outline transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">add_circle</span>
+                Add Missing Item
+            </button>
+</div>
+<!-- Right Column: Real-time calculation -->
+<div class="lg:col-span-4 space-y-md">
+<div class="sticky top-24">
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-lg">
+<div class="bg-primary p-md text-white">
+<h3 class="font-headline-md text-headline-md">Point Calculation</h3>
+<p class="text-on-primary-container text-label-sm">Real-time reward update</p>
+</div>
+<div class="p-md space-y-md">
+<div class="flex justify-between items-center py-2 border-b border-outline-variant">
+<span class="text-on-surface-variant font-body-md">AI Estimated Points</span>
+<span class="text-headline-md font-headline-md text-outline">40 pts</span>
+</div>
+<div class="flex justify-between items-center py-4 bg-primary-container/10 rounded-lg px-3">
+<span class="text-primary font-bold">Actual Points</span>
+<div class="text-right">
+<span class="text-display-lg font-display-lg text-primary block leading-none" id="actualPoints">43</span>
+<span class="text-label-sm font-label-sm text-primary">+3 bonus pts</span>
+</div>
+</div>
+<!-- Progress toward goal -->
+<div class="space-y-xs">
+<div class="flex justify-between text-label-sm">
+<span class="text-on-surface-variant">Daily Goal Progress</span>
+<span class="text-primary font-bold">85%</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-2 overflow-hidden">
+<div class="bg-primary h-full rounded-full transition-all duration-1000 ease-out" style="width: 85%"></div>
+</div>
+</div>
+<div class="pt-4 space-y-sm">
+<button class="w-full bg-primary text-white py-4 rounded-full font-label-md text-label-md flex items-center justify-center gap-2 hover:bg-primary-container transition-all shadow-md active:scale-95 duration-100">
+<span class="material-symbols-outlined">check_circle</span>
+                                Approve Submission
+                            </button>
+<div class="grid grid-cols-2 gap-sm">
+<button class="py-3 border-1.5 border-secondary text-secondary rounded-full font-label-md text-label-md hover:bg-secondary-fixed transition-all active:scale-95">
+                                    Edit Category
+                                </button>
+<button class="py-3 border-1.5 border-error text-error rounded-full font-label-md text-label-md hover:bg-error-container transition-all active:scale-95">
+                                    Reject
+                                </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Guidance Note -->
+<div class="mt-md p-md bg-surface-container-low rounded-xl border border-outline-variant flex gap-sm">
+<span class="material-symbols-outlined text-tertiary">info</span>
+<p class="text-label-sm text-on-surface-variant">Weight corrections over 15% will trigger a manual audit by the senior verification team.</p>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Bar (Shown on Mobile) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-margin-mobile pb-safe h-20 bg-surface-container-lowest border-t border-outline-variant shadow-lg rounded-t-xl">
+<div class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:text-primary transition-all">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-sm text-label-sm">Home</span>
+</div>
+<div class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-4 py-1 scale-90">
+<span class="material-symbols-outlined">center_focus_strong</span>
+<span class="font-label-sm text-label-sm">Identify</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:text-primary transition-all">
+<span class="material-symbols-outlined">location_on</span>
+<span class="font-label-sm text-label-sm">Locations</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:text-primary transition-all">
+<span class="material-symbols-outlined">emoji_events</span>
+<span class="font-label-sm text-label-sm">Rewards</span>
+</div>
+</nav>
+<script>
+        function calculatePoints() {
+            // Simplified point logic for the demonstration
+            const inputs = document.querySelectorAll('input[type="number"]');
+            let totalActual = 0;
+            inputs.forEach(input => {
+                totalActual += parseFloat(input.value || 0);
+            });
+            
+            // Artificial weighting for the "43" pts target in the prompt
+            // Normalizing different units (g vs kg) for simple demo display
+            const targetPoints = Math.max(0, Math.floor(totalActual * 0.12 + 10)); 
+            
+            const pointsDisplay = document.getElementById('actualPoints');
+            
+            // Animation for point change
+            const currentPoints = parseInt(pointsDisplay.innerText);
+            if (currentPoints !== targetPoints) {
+                pointsDisplay.classList.add('scale-110');
+                setTimeout(() => {
+                    pointsDisplay.innerText = targetPoints;
+                    pointsDisplay.classList.remove('scale-110');
+                }, 100);
+            }
+        }
+
+        // Initialize state colors for items
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('change', (e) => {
+                const parent = e.target.closest('.relative');
+                const indicator = parent.querySelector('div');
+                const aiVal = e.target.closest('.flex').querySelector('.text-outline').innerText;
+                const actualVal = parseFloat(e.target.value);
+                const aiNum = parseFloat(aiVal);
+                
+                if (actualVal > aiNum) {
+                    indicator.className = "absolute -right-2 -top-2 w-6 h-6 bg-primary text-white rounded-full flex items-center justify-center scale-75 animate-pulse";
+                    indicator.innerHTML = '<span class="material-symbols-outlined text-xs">trending_up</span>';
+                } else if (actualVal < aiNum) {
+                    indicator.className = "absolute -right-2 -top-2 w-6 h-6 bg-error text-white rounded-full flex items-center justify-center scale-75";
+                    indicator.innerHTML = '<span class="material-symbols-outlined text-xs">trending_down</span>';
+                } else {
+                    indicator.className = "hidden";
+                }
+            });
+        });
+    </script>
+</body></html>
