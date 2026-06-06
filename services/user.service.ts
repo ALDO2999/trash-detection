@@ -17,6 +17,7 @@ export interface UserProfile {
   name: string;
   email: string;
   phone?: string;
+  avatarUrl?: string | null;
   role: string;
   pointBalance: number;
   createdAt: string;
@@ -26,13 +27,14 @@ export interface LeaderboardEntry {
   id: string;
   rank: number;
   name: string;
+  avatarUrl?: string | null;
   points: number;
   isCurrentUser: boolean;
 }
 
 export interface LeaderboardData {
   entries: LeaderboardEntry[];
-  currentUser: { id: string; rank: number; name: string; points: number } | null;
+  currentUser: { id: string; rank: number; name: string; avatarUrl?: string | null; points: number } | null;
 }
 
 const UserService = {
@@ -53,6 +55,20 @@ const UserService = {
 
   async updateProfile(data: { name?: string; phone?: string }): Promise<UserProfile> {
     const res = await api.patch('/user/profile', data);
+    return res.data.data as UserProfile;
+  },
+
+  async uploadAvatar(uri: string): Promise<UserProfile> {
+    const filename = uri.split('/').pop() || `avatar-${Date.now()}.jpg`;
+    const ext = filename.split('.').pop()?.toLowerCase();
+    const mime = ext === 'png' ? 'image/png' : ext === 'webp' ? 'image/webp' : 'image/jpeg';
+
+    const form = new FormData();
+    form.append('avatar', { uri, name: filename, type: mime } as any);
+
+    const res = await api.patch('/user/avatar', form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
     return res.data.data as UserProfile;
   },
 

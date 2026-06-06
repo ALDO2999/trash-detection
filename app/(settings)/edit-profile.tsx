@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import {
+  ActivityIndicator,
   Alert,
+  Image,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -13,9 +15,11 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import { Colors } from '../../constants/colors';
 import { useAuth } from '../../context/AuthContext';
 import UserService from '../../services/user.service';
+import { mediaUrl } from '../../services/api';
 import { getApiErrorMessage } from '../../hooks/useApiError';
 
 function getInitials(name: string) {
@@ -27,6 +31,42 @@ export default function EditProfileScreen() {
   const [name, setName] = useState(user?.name ?? '');
   const [focused, setFocused] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+
+  const avatarSource = avatarPreview ?? mediaUrl(user?.avatarUrl);
+
+  const handlePickAvatar = async () => {
+    if (uploadingAvatar) return;
+
+    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!perm.granted) {
+      Alert.alert('Izin diperlukan', 'Berikan izin akses galeri untuk mengubah foto profil.');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.7,
+    });
+
+    if (result.canceled || !result.assets?.length) return;
+
+    const uri = result.assets[0].uri;
+    setAvatarPreview(uri);
+    setUploadingAvatar(true);
+    try {
+      await UserService.uploadAvatar(uri);
+      await refreshUser();
+    } catch (err) {
+      setAvatarPreview(null);
+      Alert.alert('Gagal', getApiErrorMessage(err));
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
 
   const handleSave = async () => {
     if (!name.trim()) {
@@ -105,14 +145,29 @@ export default function EditProfileScreen() {
           <View style={styles.avatarSection}>
             <View style={styles.avatarWrap}>
               <View style={styles.avatar}>
-                <Text style={styles.avatarText}>{user ? getInitials(user.name) : '?'}</Text>
+                {avatarSource ? (
+                  <Image source={{ uri: avatarSource }} style={styles.avatarImage} />
+                ) : (
+                  <Text style={styles.avatarText}>{user ? getInitials(user.name) : '?'}</Text>
+                )}
+                {uploadingAvatar && (
+                  <View style={styles.avatarOverlay}>
+                    <ActivityIndicator color={Colors.onPrimary} />
+                  </View>
+                )}
               </View>
-              <Pressable style={({ pressed }) => [styles.avatarEditBtn, pressed && styles.pressed]}>
+              <Pressable
+                onPress={handlePickAvatar}
+                disabled={uploadingAvatar}
+                style={({ pressed }) => [styles.avatarEditBtn, pressed && styles.pressed]}
+              >
                 <MaterialIcons name="photo-camera" size={16} color={Colors.onPrimary} />
               </Pressable>
             </View>
-            <Pressable>
-              <Text style={styles.changePhotoText}>Ubah Foto Profil</Text>
+            <Pressable onPress={handlePickAvatar} disabled={uploadingAvatar}>
+              <Text style={styles.changePhotoText}>
+                {uploadingAvatar ? 'Mengunggah...' : 'Ubah Foto Profil'}
+              </Text>
             </Pressable>
           </View>
 
@@ -168,8 +223,13 @@ const styles = StyleSheet.create({
   avatarSection: { alignItems: 'center', marginBottom: 28, gap: 10 },
   avatarWrap: { position: 'relative' },
   avatar: {
-    width: 96, height: 96, borderRadius: 48,
+    width: 96, height: 96, borderRadius: 48, overflow: 'hidden',
     backgroundColor: Colors.primaryContainer, alignItems: 'center', justifyContent: 'center',
+  },
+  avatarImage: { width: '100%', height: '100%' },
+  avatarOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.35)', alignItems: 'center', justifyContent: 'center',
   },
   avatarText: { fontFamily: 'PlusJakartaSans_700Bold', fontSize: 32, color: Colors.onPrimaryContainer },
   avatarEditBtn: {

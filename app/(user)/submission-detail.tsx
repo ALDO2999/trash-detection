@@ -33,10 +33,10 @@ const STATUS_CONFIG = {
 };
 
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('id-ID', {
-    day: 'numeric', month: 'long', year: 'numeric',
-    hour: '2-digit', minute: '2-digit',
-  });
+  const d = new Date(iso);
+  const date = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+  const time = d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+  return `${date}\npukul ${time}`;
 }
 
 function DetailRow({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
@@ -252,9 +252,9 @@ const styles = StyleSheet.create({
   },
   cardTitle: { fontFamily: 'Inter_600SemiBold', fontSize: 14, color: Colors.onSurfaceVariant },
   divider: { height: 1, backgroundColor: Colors.surfaceContainerHigh },
-  detailRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  detailLabel: { fontFamily: 'Inter_400Regular', fontSize: 14, color: Colors.onSurfaceVariant },
-  detailValue: { fontFamily: 'Inter_500Medium', fontSize: 14, color: Colors.onSurface },
+  detailRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 },
+  detailLabel: { fontFamily: 'Inter_400Regular', fontSize: 14, color: Colors.onSurfaceVariant, flexShrink: 0 },
+  detailValue: { fontFamily: 'Inter_500Medium', fontSize: 14, color: Colors.onSurface, flex: 1, textAlign: 'right' },
   detailValueHighlight: { fontFamily: 'Inter_700Bold', fontSize: 15, color: Colors.primary },
 
   rejectionCard: {

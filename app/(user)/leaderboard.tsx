@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  Image,
   RefreshControl,
   ScrollView,
   StyleSheet,
@@ -12,6 +13,7 @@ import { useFocusEffect } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors } from '../../constants/colors';
 import UserService, { LeaderboardData, LeaderboardEntry } from '../../services/user.service';
+import { mediaUrl } from '../../services/api';
 
 interface DisplayEntry extends LeaderboardEntry {
   avatarColor: string;
@@ -41,6 +43,7 @@ function toDisplay(e: LeaderboardEntry): DisplayEntry {
 }
 
 function Avatar({ entry, size }: { entry: DisplayEntry; size: number }) {
+  const uri = mediaUrl(entry.avatarUrl);
   return (
     <View
       style={[
@@ -48,7 +51,11 @@ function Avatar({ entry, size }: { entry: DisplayEntry; size: number }) {
         { width: size, height: size, borderRadius: size / 2, backgroundColor: entry.avatarColor },
       ]}
     >
-      <Text style={[styles.avatarText, { fontSize: size * 0.36 }]}>{entry.avatarInitials}</Text>
+      {uri ? (
+        <Image source={{ uri }} style={{ width: size, height: size }} />
+      ) : (
+        <Text style={[styles.avatarText, { fontSize: size * 0.36 }]}>{entry.avatarInitials}</Text>
+      )}
     </View>
   );
 }
@@ -212,7 +219,11 @@ export default function LeaderboardScreen() {
             <Text style={styles.footerRankNum}>{currentUser.rank}</Text>
           </View>
           <View style={styles.footerAvatar}>
-            <MaterialIcons name="recycling" size={22} color={Colors.onPrimary} />
+            {mediaUrl(currentUser.avatarUrl) ? (
+              <Image source={{ uri: mediaUrl(currentUser.avatarUrl) }} style={styles.footerAvatarImg} />
+            ) : (
+              <MaterialIcons name="recycling" size={22} color={Colors.onPrimary} />
+            )}
           </View>
           <View style={styles.footerInfo}>
             <Text style={styles.footerLabel}>Peringkat Kamu</Text>
@@ -277,7 +288,7 @@ const styles = StyleSheet.create({
   podiumPtsUnit: { fontFamily: 'Inter_500Medium', fontSize: 13, color: Colors.onSurfaceVariant },
 
   // Avatar
-  avatar: { alignItems: 'center', justifyContent: 'center' },
+  avatar: { alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   avatarText: { fontFamily: 'Inter_600SemiBold', color: '#fff' },
 
   // List
@@ -326,10 +337,11 @@ const styles = StyleSheet.create({
   },
   footerRankNum: { fontFamily: 'PlusJakartaSans_700Bold', fontSize: 18, color: Colors.onPrimary },
   footerAvatar: {
-    width: 40, height: 40, borderRadius: 20,
+    width: 40, height: 40, borderRadius: 20, overflow: 'hidden',
     backgroundColor: `${Colors.onPrimary}26`,
     alignItems: 'center', justifyContent: 'center',
   },
+  footerAvatarImg: { width: 40, height: 40 },
   footerInfo: { flex: 1 },
   footerLabel: { fontFamily: 'Inter_600SemiBold', fontSize: 14, color: Colors.onPrimary },
   footerLevel: { fontFamily: 'Inter_400Regular', fontSize: 12, color: `${Colors.onPrimary}CC`, marginTop: 1 },

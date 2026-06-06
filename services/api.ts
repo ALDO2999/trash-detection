@@ -5,6 +5,16 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // Contoh: 'http://192.168.1.10:3000/api'
 export const BASE_URL = 'http://192.168.112.246:3000/api';
 
+// Origin server tanpa prefix /api — untuk mengakses file statis (mis. /uploads)
+export const MEDIA_URL = BASE_URL.replace(/\/api\/?$/, '');
+
+// Bangun URL gambar absolut dari path relatif yang dikembalikan backend
+export function mediaUrl(path?: string | null): string | undefined {
+  if (!path) return undefined;
+  if (/^https?:\/\//.test(path)) return path;
+  return `${MEDIA_URL}${path.startsWith('/') ? '' : '/'}${path}`;
+}
+
 const api = axios.create({
   baseURL: BASE_URL,
   timeout: 15000,

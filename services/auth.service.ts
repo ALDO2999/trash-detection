@@ -18,6 +18,7 @@ export interface AuthUser {
   email: string;
   role: 'USER' | 'PETUGAS';
   pointBalance: number;
+  avatarUrl?: string | null;
 }
 
 export interface LoginResponse {

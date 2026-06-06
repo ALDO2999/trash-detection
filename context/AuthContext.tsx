@@ -74,6 +74,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         email: profile.email,
         role: profile.role as AuthUser['role'],
         pointBalance: profile.pointBalance,
+        avatarUrl: profile.avatarUrl,
       };
       setUser(updated);
       await AsyncStorage.setItem('user', JSON.stringify(updated));

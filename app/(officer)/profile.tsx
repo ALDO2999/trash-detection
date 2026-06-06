@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
+  Image,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -13,6 +14,7 @@ import { Colors } from '../../constants/colors';
 import { router, useFocusEffect } from 'expo-router';
 import { useAuth } from '../../context/AuthContext';
 import OfficerService, { OfficerDashboard } from '../../services/officer.service';
+import { mediaUrl } from '../../services/api';
 
 function getInitials(name: string) {
   return name.split(' ').slice(0, 2).map((w) => w[0]).join('').toUpperCase();
@@ -37,6 +39,7 @@ export default function OfficerProfileScreen() {
   useFocusEffect(useCallback(() => { loadDashboard(); }, [loadDashboard]));
 
   const initials = user ? getInitials(user.name) : '?';
+  const avatarUri = mediaUrl(user?.avatarUrl);
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -45,7 +48,11 @@ export default function OfficerProfileScreen() {
         {/* Profile Card */}
         <View style={styles.profileCard}>
           <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{initials}</Text>
+            {avatarUri ? (
+              <Image source={{ uri: avatarUri }} style={styles.avatarImage} />
+            ) : (
+              <Text style={styles.avatarText}>{initials}</Text>
+            )}
           </View>
           <Text style={styles.name}>{user?.name ?? '—'}</Text>
           <Text style={styles.role}>Petugas Verifikasi</Text>
@@ -118,9 +125,10 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: Colors.surfaceContainerHigh,
   },
   avatar: {
-    width: 72, height: 72, borderRadius: 36,
+    width: 72, height: 72, borderRadius: 36, overflow: 'hidden',
     backgroundColor: Colors.secondary, alignItems: 'center', justifyContent: 'center', marginBottom: 4,
   },
+  avatarImage: { width: '100%', height: '100%' },
   avatarText: { fontFamily: 'PlusJakartaSans_700Bold', fontSize: 24, color: Colors.onSecondary },
   name: { fontFamily: 'PlusJakartaSans_700Bold', fontSize: 20, color: Colors.onSurface },
   role: { fontFamily: 'Inter_400Regular', fontSize: 14, color: Colors.onSurfaceVariant },

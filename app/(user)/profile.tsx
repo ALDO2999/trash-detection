@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  Image,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -13,6 +14,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { Colors } from '../../constants/colors';
 import { useAuth } from '../../context/AuthContext';
 import UserService, { DashboardData } from '../../services/user.service';
+import { mediaUrl } from '../../services/api';
 
 function getInitials(name: string) {
   return name.split(' ').slice(0, 2).map((w) => w[0]).join('').toUpperCase();
@@ -65,6 +67,7 @@ export default function ProfileScreen() {
   useFocusEffect(useCallback(() => { loadDashboard(); }, [loadDashboard]));
 
   const initials = user ? getInitials(user.name) : '?';
+  const avatarUri = mediaUrl(user?.avatarUrl);
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -73,7 +76,11 @@ export default function ProfileScreen() {
         {/* Profile Card */}
         <View style={styles.profileCard}>
           <View style={styles.avatarLarge}>
-            <Text style={styles.avatarText}>{initials}</Text>
+            {avatarUri ? (
+              <Image source={{ uri: avatarUri }} style={styles.avatarImage} />
+            ) : (
+              <Text style={styles.avatarText}>{initials}</Text>
+            )}
           </View>
           <View style={styles.profileInfo}>
             <View style={styles.levelPill}>
@@ -157,11 +164,12 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: Colors.surfaceContainerHigh,
   },
   avatarLarge: {
-    width: 60, height: 60, borderRadius: 30,
+    width: 60, height: 60, borderRadius: 30, overflow: 'hidden',
     backgroundColor: Colors.primaryContainer,
     alignItems: 'center', justifyContent: 'center',
     flexShrink: 0,
   },
+  avatarImage: { width: '100%', height: '100%' },
   avatarText: { fontFamily: 'PlusJakartaSans_700Bold', fontSize: 20, color: Colors.onPrimaryContainer },
   profileInfo: { flex: 1, gap: 4, minWidth: 0 },
   profileName: { fontFamily: 'PlusJakartaSans_700Bold', fontSize: 17, color: Colors.onSurface },

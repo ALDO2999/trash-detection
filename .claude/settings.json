@@ -4,6 +4,9 @@
       "Bash(del \"d:\\\\Personal\\\\project\\\\trash-detection\\\\app\\\\\\(officer\\)\\\\scan-qr.tsx\")",
       "Bash(ls src/submissions)",
       "Bash(ls src/submission)"
+    ],
+    "additionalDirectories": [
+      "d:\\Personal\\project\\trash-detection-backend\\src"
     ]
   },
   "enabledPlugins": {
