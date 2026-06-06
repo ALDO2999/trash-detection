@@ -47,7 +47,7 @@ export default function AboutScreen() {
               resizeMode="contain"
             />
           </View>
-          <Text style={styles.appName}>WasteSort AI</Text>
+          <Text style={styles.appName}>EcoPoint</Text>
           <Text style={styles.tagline}>Pengelolaan Sampah Berbasis AI & Reward</Text>
           <View style={styles.versionBadge}>
             <Text style={styles.versionText}>Versi 1.0.0</Text>

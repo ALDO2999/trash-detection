@@ -14,30 +14,31 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors } from '../../constants/colors';
-import { useAuth } from '../../context/AuthContext';
 import UserService from '../../services/user.service';
 import { getApiErrorMessage } from '../../hooks/useApiError';
 
-function getInitials(name: string) {
-  return name.split(' ').slice(0, 2).map((w) => w[0]).join('').toUpperCase();
-}
-
-export default function EditProfileScreen() {
-  const { user, refreshUser } = useAuth();
-  const [name, setName] = useState(user?.name ?? '');
+export default function ChangePasswordScreen() {
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showCurrent, setShowCurrent] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [focused, setFocused] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
+  const isNewValid = newPassword.length >= 8;
+  const isConfirmMatch = newPassword === confirmPassword;
+  const canSave = currentPassword.length > 0 && isNewValid && isConfirmMatch;
+
   const handleSave = async () => {
-    if (!name.trim()) {
-      Alert.alert('Error', 'Nama tidak boleh kosong.');
-      return;
-    }
+    if (!canSave || saving) return;
     setSaving(true);
     try {
-      await UserService.updateProfile({ name: name.trim() });
-      await refreshUser();
-      router.back();
+      await UserService.changePassword(currentPassword, newPassword);
+      Alert.alert('Berhasil', 'Password berhasil diubah.', [
+        { text: 'OK', onPress: () => router.back() },
+      ]);
     } catch (err) {
       Alert.alert('Gagal', getApiErrorMessage(err));
     } finally {
@@ -45,42 +46,48 @@ export default function EditProfileScreen() {
     }
   };
 
-  const field = (
+  const renderField = (
     key: string,
     label: string,
     value: string,
     setter: (v: string) => void,
-    opts?: { placeholder?: string; icon?: any; keyboardType?: any; autoCapitalize?: any; hint?: string }
+    show: boolean,
+    toggleShow: () => void,
+    hint?: string,
+    errorHint?: string,
   ) => (
     <View style={styles.fieldGroup}>
       <Text style={[styles.label, focused === key && styles.labelFocused]}>{label}</Text>
       <View style={[styles.inputWrapper, focused === key && styles.inputFocused]}>
-        {opts?.icon && (
-          <MaterialIcons
-            name={opts.icon}
-            size={20}
-            color={focused === key ? Colors.primary : Colors.outlineVariant}
-          />
-        )}
+        <MaterialIcons
+          name="lock-outline"
+          size={20}
+          color={focused === key ? Colors.primary : Colors.outlineVariant}
+        />
         <TextInput
           style={styles.input}
+          placeholder={hint}
+          placeholderTextColor={Colors.outline}
           value={value}
           onChangeText={setter}
-          placeholder={opts?.placeholder}
-          placeholderTextColor={Colors.outline}
-          keyboardType={opts?.keyboardType}
-          autoCapitalize={opts?.autoCapitalize}
+          secureTextEntry={!show}
           onFocus={() => setFocused(key)}
           onBlur={() => setFocused(null)}
         />
+        <Pressable onPress={toggleShow}>
+          <MaterialIcons
+            name={show ? 'visibility-off' : 'visibility'}
+            size={20}
+            color={Colors.outlineVariant}
+          />
+        </Pressable>
       </View>
-      {opts?.hint && <Text style={styles.hint}>{opts.hint}</Text>}
+      {errorHint && <Text style={styles.errorHint}>{errorHint}</Text>}
     </View>
   );
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      {/* Header */}
       <View style={styles.header}>
         <Pressable
           onPress={() => router.back()}
@@ -88,7 +95,7 @@ export default function EditProfileScreen() {
         >
           <MaterialIcons name="arrow-back" size={24} color={Colors.onSurface} />
         </Pressable>
-        <Text style={styles.headerTitle}>Edit Profil</Text>
+        <Text style={styles.headerTitle}>Ubah Password</Text>
         <View style={{ width: 40 }} />
       </View>
 
@@ -101,48 +108,52 @@ export default function EditProfileScreen() {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          {/* Avatar */}
-          <View style={styles.avatarSection}>
-            <View style={styles.avatarWrap}>
-              <View style={styles.avatar}>
-                <Text style={styles.avatarText}>{user ? getInitials(user.name) : '?'}</Text>
-              </View>
-              <Pressable style={({ pressed }) => [styles.avatarEditBtn, pressed && styles.pressed]}>
-                <MaterialIcons name="photo-camera" size={16} color={Colors.onPrimary} />
-              </Pressable>
-            </View>
-            <Pressable>
-              <Text style={styles.changePhotoText}>Ubah Foto Profil</Text>
-            </Pressable>
+          <View style={styles.infoCard}>
+            <MaterialIcons name="info-outline" size={20} color={Colors.primary} />
+            <Text style={styles.infoText}>
+              Password baru minimal 8 karakter. Setelah diubah, gunakan password baru untuk login berikutnya.
+            </Text>
           </View>
 
-          {/* Fields */}
           <View style={styles.form}>
-            {field('name', 'Nama Lengkap', name, setName, { icon: 'person-outline', placeholder: 'Nama lengkap' })}
+            {renderField(
+              'current', 'Password Saat Ini',
+              currentPassword, setCurrentPassword,
+              showCurrent, () => setShowCurrent(!showCurrent),
+              'Masukkan password saat ini',
+            )}
 
-            {/* Email (read-only) */}
-            <View style={styles.fieldGroup}>
-              <Text style={styles.label}>Email</Text>
-              <View style={[styles.inputWrapper, styles.inputDisabled]}>
-                <MaterialIcons name="mail-outline" size={20} color={Colors.outlineVariant} />
-                <Text style={styles.inputDisabledText}>{user?.email ?? '—'}</Text>
-                <MaterialIcons name="lock-outline" size={16} color={Colors.outline} />
-              </View>
-              <Text style={styles.hint}>Email tidak dapat diubah karena terhubung dengan akun.</Text>
-            </View>
+            {renderField(
+              'new', 'Password Baru',
+              newPassword, setNewPassword,
+              showNew, () => setShowNew(!showNew),
+              'Minimal 8 karakter',
+              newPassword.length > 0 && !isNewValid ? 'Password minimal 8 karakter' : undefined,
+            )}
+
+            {renderField(
+              'confirm', 'Konfirmasi Password Baru',
+              confirmPassword, setConfirmPassword,
+              showConfirm, () => setShowConfirm(!showConfirm),
+              'Ulangi password baru',
+              confirmPassword.length > 0 && !isConfirmMatch ? 'Password tidak cocok' : undefined,
+            )}
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
 
-      {/* Save */}
       <View style={styles.footer}>
         <Pressable
-          style={({ pressed }) => [styles.saveBtn, saving && { opacity: 0.7 }, pressed && styles.pressed]}
+          style={({ pressed }) => [
+            styles.saveBtn,
+            (!canSave || saving) && styles.saveBtnDisabled,
+            pressed && canSave && styles.pressed,
+          ]}
           onPress={handleSave}
-          disabled={saving}
+          disabled={!canSave || saving}
         >
           <MaterialIcons name="check" size={20} color={Colors.onPrimary} />
-          <Text style={styles.saveBtnText}>{saving ? 'Menyimpan...' : 'Simpan Perubahan'}</Text>
+          <Text style={styles.saveBtnText}>{saving ? 'Menyimpan...' : 'Simpan Password Baru'}</Text>
         </Pressable>
       </View>
     </SafeAreaView>
@@ -163,22 +174,17 @@ const styles = StyleSheet.create({
   backBtn: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
   headerTitle: { fontFamily: 'PlusJakartaSans_700Bold', fontSize: 18, color: Colors.onSurface },
 
-  scroll: { paddingHorizontal: 20, paddingTop: 24, paddingBottom: 40 },
+  scroll: { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 40, gap: 20 },
 
-  avatarSection: { alignItems: 'center', marginBottom: 28, gap: 10 },
-  avatarWrap: { position: 'relative' },
-  avatar: {
-    width: 96, height: 96, borderRadius: 48,
-    backgroundColor: Colors.primaryContainer, alignItems: 'center', justifyContent: 'center',
+  infoCard: {
+    flexDirection: 'row', alignItems: 'flex-start', gap: 12,
+    backgroundColor: `${Colors.primary}12`, borderRadius: 14, padding: 14,
+    borderWidth: 1, borderColor: `${Colors.primary}30`,
   },
-  avatarText: { fontFamily: 'PlusJakartaSans_700Bold', fontSize: 32, color: Colors.onPrimaryContainer },
-  avatarEditBtn: {
-    position: 'absolute', bottom: 0, right: 0,
-    width: 32, height: 32, borderRadius: 16, backgroundColor: Colors.primary,
-    alignItems: 'center', justifyContent: 'center',
-    borderWidth: 3, borderColor: Colors.background,
+  infoText: {
+    flex: 1, fontFamily: 'Inter_400Regular', fontSize: 13,
+    color: Colors.onSurface, lineHeight: 19,
   },
-  changePhotoText: { fontFamily: 'Inter_600SemiBold', fontSize: 14, color: Colors.primary },
 
   form: { gap: 18 },
   fieldGroup: { gap: 7 },
@@ -191,10 +197,8 @@ const styles = StyleSheet.create({
     borderWidth: 2, borderColor: 'transparent',
   },
   inputFocused: { backgroundColor: Colors.surfaceContainerLowest, borderColor: Colors.primary },
-  inputDisabled: { backgroundColor: Colors.surfaceContainerHigh },
   input: { flex: 1, fontFamily: 'Inter_400Regular', fontSize: 15, color: Colors.onSurface },
-  inputDisabledText: { flex: 1, fontFamily: 'Inter_400Regular', fontSize: 15, color: Colors.onSurfaceVariant },
-  hint: { fontFamily: 'Inter_400Regular', fontSize: 12, color: Colors.onSurfaceVariant, lineHeight: 17 },
+  errorHint: { fontFamily: 'Inter_400Regular', fontSize: 12, color: Colors.error },
 
   footer: {
     paddingHorizontal: 20, paddingTop: 12, paddingBottom: 28,
@@ -207,5 +211,6 @@ const styles = StyleSheet.create({
     shadowColor: Colors.primary, shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25, shadowRadius: 8, elevation: 4,
   },
+  saveBtnDisabled: { opacity: 0.45, elevation: 0, shadowOpacity: 0 },
   saveBtnText: { fontFamily: 'Inter_600SemiBold', fontSize: 16, color: Colors.onPrimary },
 });

@@ -33,7 +33,7 @@ const FAQS = [
   },
   {
     q: 'Jenis sampah apa saja yang didukung?',
-    a: 'Saat ini ada 7 jenis: Plastic, Paper, Cardboard, Metal, Battery, Clothes, dan Shoes. Jenis lain belum termasuk pada versi ini.',
+    a: 'Saat ini ada 6 jenis: Plastic, Cardboard, Metal, Battery, Clothes, dan Shoes. Jenis lain belum termasuk pada versi ini.',
   },
   {
     q: 'Kenapa pengajuan saya ditolak?',

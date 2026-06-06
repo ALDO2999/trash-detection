@@ -47,6 +47,16 @@ const AuthService = {
     return res.data.data as LoginResponse;
   },
 
+  async forgotPassword(email: string): Promise<{ message: string }> {
+    const res = await api.post('/auth/forgot-password', { email });
+    return res.data;
+  },
+
+  async resetPassword(email: string, otp: string, newPassword: string): Promise<{ message: string }> {
+    const res = await api.post('/auth/reset-password', { email, otp, newPassword });
+    return res.data;
+  },
+
   async logout(refreshToken: string) {
     const res = await api.post('/auth/logout', { refreshToken });
     return res.data;

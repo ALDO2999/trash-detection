@@ -1,4 +1,6 @@
+import { useCallback, useRef, useState } from 'react';
 import {
+  ActivityIndicator,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -6,25 +8,21 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors } from '../../constants/colors';
-import { MOCK_USER } from '../../constants/mockData';
+import { useAuth } from '../../context/AuthContext';
+import UserService, { DashboardData } from '../../services/user.service';
+
+function getInitials(name: string) {
+  return name.split(' ').slice(0, 2).map((w) => w[0]).join('').toUpperCase();
+}
 
 function MenuItem({
-  icon,
-  label,
-  subtitle,
-  onPress,
-  danger,
-  rightElement,
+  icon, label, subtitle, onPress, danger, rightElement,
 }: {
-  icon: any;
-  label: string;
-  subtitle?: string;
-  onPress?: () => void;
-  danger?: boolean;
-  rightElement?: React.ReactNode;
+  icon: any; label: string; subtitle?: string;
+  onPress?: () => void; danger?: boolean; rightElement?: React.ReactNode;
 }) {
   return (
     <Pressable
@@ -46,7 +44,27 @@ function MenuItem({
 }
 
 export default function ProfileScreen() {
-  const user = MOCK_USER;
+  const { user, logout } = useAuth();
+  const [dashboard, setDashboard] = useState<DashboardData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const hasLoaded = useRef(false);
+
+  const loadDashboard = useCallback(async () => {
+    if (!hasLoaded.current) setLoading(true);
+    try {
+      const data = await UserService.getDashboard();
+      setDashboard(data);
+      hasLoaded.current = true;
+    } catch {
+      // ignore
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useFocusEffect(useCallback(() => { loadDashboard(); }, [loadDashboard]));
+
+  const initials = user ? getInitials(user.name) : '?';
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -55,35 +73,41 @@ export default function ProfileScreen() {
         {/* Profile Card */}
         <View style={styles.profileCard}>
           <View style={styles.avatarLarge}>
-            <Text style={styles.avatarText}>{user.avatarInitials}</Text>
+            <Text style={styles.avatarText}>{initials}</Text>
           </View>
           <View style={styles.profileInfo}>
-            <Text style={styles.profileName}>{user.name}</Text>
-            <Text style={styles.profileUsername}>@{user.username}</Text>
-            <Text style={styles.profileCity}>
-              <MaterialIcons name="location-on" size={12} color={Colors.onSurfaceVariant} />
-              {' '}{user.city}
-            </Text>
-          </View>
-          <View style={styles.levelPill}>
-            <MaterialIcons name="eco" size={14} color={Colors.primary} />
-            <Text style={styles.levelPillText}>{user.level}</Text>
+            <View style={styles.levelPill}>
+              <MaterialIcons name="eco" size={12} color={Colors.primary} />
+              <Text style={styles.levelPillText}>
+                {(dashboard?.totalPointsEarned ?? 0) >= 3000 ? 'Master Recycler'
+                 : (dashboard?.totalPointsEarned ?? 0) >= 1500 ? 'Green Champion'
+                 : (dashboard?.totalPointsEarned ?? 0) >= 500 ? 'Eco Warrior'
+                 : (dashboard?.totalPointsEarned ?? 0) >= 100 ? 'Pejuang Hijau'
+                 : 'Pemula'}
+              </Text>
+            </View>
+            <Text style={styles.profileName} numberOfLines={1} adjustsFontSizeToFit>{user?.name ?? '—'}</Text>
+            <Text style={styles.profileEmail} numberOfLines={1}>{user?.email ?? '—'}</Text>
           </View>
         </View>
 
         {/* Stats */}
         <View style={styles.statsCard}>
-          {[
-            { label: 'Total Poin', value: user.points.toLocaleString(), icon: 'stars' as const, color: Colors.tertiaryFixedDim },
-            { label: 'Pengajuan', value: String(user.totalSubmissions), icon: 'assignment' as const, color: Colors.primary },
-            { label: 'Total Berat', value: `${user.totalWeightKg} kg`, icon: 'scale' as const, color: Colors.secondary },
-          ].map((s) => (
-            <View key={s.label} style={styles.statItem}>
-              <MaterialIcons name={s.icon} size={20} color={s.color} />
-              <Text style={styles.statValue}>{s.value}</Text>
-              <Text style={styles.statLabel}>{s.label}</Text>
-            </View>
-          ))}
+          {loading ? (
+            <ActivityIndicator color={Colors.primary} style={{ flex: 1, paddingVertical: 8 }} />
+          ) : (
+            [
+              { label: 'Total Pts', value: (dashboard?.totalPointsEarned ?? 0).toLocaleString(), icon: 'stars' as const, color: Colors.tertiaryFixedDim },
+              { label: 'Pengajuan', value: String(dashboard?.totalSubmissions ?? 0), icon: 'assignment' as const, color: Colors.primary },
+              { label: 'Total Berat', value: `${dashboard?.totalWeightKg ?? 0} kg`, icon: 'scale' as const, color: Colors.secondary },
+            ].map((s) => (
+              <View key={s.label} style={styles.statItem}>
+                <MaterialIcons name={s.icon} size={20} color={s.color} />
+                <Text style={styles.statValue}>{s.value}</Text>
+                <Text style={styles.statLabel}>{s.label}</Text>
+              </View>
+            ))
+          )}
         </View>
 
         {/* Menu: Akun */}
@@ -92,45 +116,28 @@ export default function ProfileScreen() {
           <MenuItem
             icon="edit"
             label="Edit Profil"
-            subtitle="Ubah nama, foto, dan kota"
+            subtitle="Ubah nama dan informasi akun"
             onPress={() => router.push('/(settings)/edit-profile')}
+          />
+          <MenuItem
+            icon="lock-outline"
+            label="Ubah Password"
+            subtitle="Ganti kata sandi akun Anda"
+            onPress={() => router.push('/(settings)/change-password')}
           />
         </View>
 
         {/* Menu: Lainnya */}
         <Text style={styles.sectionLabel}>Lainnya</Text>
         <View style={styles.menuGroup}>
-          <MenuItem
-            icon="privacy-tip"
-            label="Privasi & Data"
-            onPress={() => router.push('/(settings)/privacy')}
-          />
-          <MenuItem
-            icon="help-outline"
-            label="Bantuan & FAQ"
-            onPress={() => router.push('/(settings)/faq')}
-          />
-          <MenuItem
-            icon="info-outline"
-            label="Tentang Aplikasi"
-            subtitle="Versi 1.0.0"
-            onPress={() => router.push('/(settings)/about')}
-          />
-        </View>
-
-        {/* Switch to Officer (demo) */}
-        <View style={styles.menuGroup}>
-          <MenuItem
-            icon="swap-horiz"
-            label="Masuk sebagai Petugas"
-            subtitle="Mode demo"
-            onPress={() => router.replace('/(officer)')}
-          />
+          <MenuItem icon="privacy-tip" label="Privasi & Data" onPress={() => router.push('/(settings)/privacy')} />
+          <MenuItem icon="help-outline" label="Bantuan & FAQ" onPress={() => router.push('/(settings)/faq')} />
+          <MenuItem icon="info-outline" label="Tentang Aplikasi" subtitle="Versi 1.0.0" onPress={() => router.push('/(settings)/about')} />
         </View>
 
         {/* Danger Zone */}
         <View style={styles.menuGroup}>
-          <MenuItem icon="logout" label="Logout" danger onPress={() => router.replace('/(auth)/login')} />
+          <MenuItem icon="logout" label="Logout" danger onPress={logout} />
         </View>
 
         <View style={{ height: 20 }} />
@@ -144,8 +151,7 @@ const styles = StyleSheet.create({
   scroll: { paddingBottom: 24 },
 
   profileCard: {
-    margin: 20,
-    backgroundColor: Colors.surfaceContainerLowest,
+    margin: 20, backgroundColor: Colors.surfaceContainerLowest,
     borderRadius: 20, padding: 20,
     flexDirection: 'row', alignItems: 'center', gap: 16,
     borderWidth: 1, borderColor: Colors.surfaceContainerHigh,
@@ -154,22 +160,22 @@ const styles = StyleSheet.create({
     width: 60, height: 60, borderRadius: 30,
     backgroundColor: Colors.primaryContainer,
     alignItems: 'center', justifyContent: 'center',
+    flexShrink: 0,
   },
   avatarText: { fontFamily: 'PlusJakartaSans_700Bold', fontSize: 20, color: Colors.onPrimaryContainer },
-  profileInfo: { flex: 1 },
-  profileName: { fontFamily: 'PlusJakartaSans_700Bold', fontSize: 18, color: Colors.onSurface },
-  profileUsername: { fontFamily: 'Inter_400Regular', fontSize: 13, color: Colors.onSurfaceVariant, marginTop: 2 },
-  profileCity: { fontFamily: 'Inter_400Regular', fontSize: 12, color: Colors.onSurfaceVariant, marginTop: 4 },
+  profileInfo: { flex: 1, gap: 4, minWidth: 0 },
+  profileName: { fontFamily: 'PlusJakartaSans_700Bold', fontSize: 17, color: Colors.onSurface },
+  profileEmail: { fontFamily: 'Inter_400Regular', fontSize: 12, color: Colors.onSurfaceVariant },
   levelPill: {
     flexDirection: 'row', alignItems: 'center', gap: 4,
     backgroundColor: `${Colors.primary}15`, borderRadius: 999,
-    paddingHorizontal: 10, paddingVertical: 4, alignSelf: 'flex-start',
+    paddingHorizontal: 8, paddingVertical: 3, alignSelf: 'flex-start',
   },
-  levelPillText: { fontFamily: 'Inter_600SemiBold', fontSize: 12, color: Colors.primary },
+  levelPillText: { fontFamily: 'Inter_600SemiBold', fontSize: 11, color: Colors.primary },
 
   statsCard: {
     marginHorizontal: 20, marginBottom: 24,
-    flexDirection: 'row',
+    flexDirection: 'row', minHeight: 72,
     backgroundColor: Colors.surfaceContainerLow,
     borderRadius: 16, padding: 16,
   },
@@ -178,17 +184,15 @@ const styles = StyleSheet.create({
   statLabel: { fontFamily: 'Inter_400Regular', fontSize: 11, color: Colors.onSurfaceVariant },
 
   sectionLabel: {
-    fontFamily: 'Inter_600SemiBold', fontSize: 12,
-    color: Colors.outline, letterSpacing: 0.8,
-    textTransform: 'uppercase',
+    fontFamily: 'Inter_600SemiBold', fontSize: 12, color: Colors.outline,
+    letterSpacing: 0.8, textTransform: 'uppercase',
     paddingHorizontal: 20, marginBottom: 8, marginTop: 8,
   },
 
   menuGroup: {
     marginHorizontal: 20, marginBottom: 8,
     backgroundColor: Colors.surfaceContainerLowest,
-    borderRadius: 16,
-    borderWidth: 1, borderColor: Colors.surfaceContainerHigh,
+    borderRadius: 16, borderWidth: 1, borderColor: Colors.surfaceContainerHigh,
     overflow: 'hidden',
   },
   menuItem: {

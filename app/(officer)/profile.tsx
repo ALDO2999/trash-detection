@@ -1,83 +1,81 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useState } from 'react';
+import {
+  ActivityIndicator,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors } from '../../constants/colors';
-import { MOCK_OFFICER } from '../../constants/mockData';
+import { router, useFocusEffect } from 'expo-router';
+import { useAuth } from '../../context/AuthContext';
+import OfficerService, { OfficerDashboard } from '../../services/officer.service';
+
+function getInitials(name: string) {
+  return name.split(' ').slice(0, 2).map((w) => w[0]).join('').toUpperCase();
+}
 
 export default function OfficerProfileScreen() {
-  const officer = MOCK_OFFICER;
+  const { user, logout } = useAuth();
+  const [dashboard, setDashboard] = useState<OfficerDashboard | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const loadDashboard = useCallback(async () => {
+    try {
+      const data = await OfficerService.getDashboard();
+      setDashboard(data);
+    } catch {
+      // ignore
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useFocusEffect(useCallback(() => { loadDashboard(); }, [loadDashboard]));
+
+  const initials = user ? getInitials(user.name) : '?';
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
+
+        {/* Profile Card */}
         <View style={styles.profileCard}>
           <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{officer.avatarInitials}</Text>
+            <Text style={styles.avatarText}>{initials}</Text>
           </View>
-          <Text style={styles.name}>{officer.name}</Text>
+          <Text style={styles.name}>{user?.name ?? '—'}</Text>
           <Text style={styles.role}>Petugas Verifikasi</Text>
           <View style={styles.stationBadge}>
-            <MaterialIcons name="business" size={13} color={Colors.secondary} />
-            <Text style={styles.stationText}>Station #4421 · {officer.city}</Text>
+            <MaterialIcons name="verified-user" size={13} color={Colors.secondary} />
+            <Text style={styles.stationText}>{user?.email ?? '—'}</Text>
           </View>
         </View>
 
+        {/* Stats */}
         <View style={styles.statsCard}>
-          {[
-            { label: 'Verifikasi Hari Ini', value: '57', icon: 'check-circle' as const, color: Colors.primary },
-            { label: 'Total Kg', value: '120', icon: 'scale' as const, color: Colors.secondary },
-            { label: 'Poin Diberikan', value: '2,450', icon: 'stars' as const, color: Colors.tertiaryFixedDim },
-          ].map((s) => (
-            <View key={s.label} style={styles.statItem}>
-              <MaterialIcons name={s.icon} size={20} color={s.color} />
-              <Text style={styles.statValue}>{s.value}</Text>
-              <Text style={styles.statLabel}>{s.label}</Text>
-            </View>
-          ))}
-        </View>
-
-        <Text style={styles.sectionLabel}>Akun</Text>
-        <View style={styles.menuGroup}>
-          {[
-            { icon: 'email' as const, label: officer.email },
-            { icon: 'badge' as const, label: 'ID Petugas: OFF-001' },
-          ].map((item) => (
-            <View key={item.label} style={styles.menuItem}>
-              <View style={styles.menuIcon}>
-                <MaterialIcons name={item.icon} size={18} color={Colors.primary} />
+          {loading ? (
+            <ActivityIndicator color={Colors.primary} style={{ flex: 1, paddingVertical: 8 }} />
+          ) : (
+            [
+              { label: 'Disetujui', value: String(dashboard?.totalApproved ?? 0), icon: 'check-circle' as const, color: Colors.primary },
+              { label: 'Total Kg', value: `${dashboard?.totalWeightKg ?? 0}`, icon: 'scale' as const, color: Colors.secondary },
+              { label: 'Poin Diberikan', value: (dashboard?.totalPointsGiven ?? 0).toLocaleString(), icon: 'stars' as const, color: Colors.tertiaryFixedDim },
+            ].map((s) => (
+              <View key={s.label} style={styles.statItem}>
+                <MaterialIcons name={s.icon} size={20} color={s.color} />
+                <Text style={styles.statValue}>{s.value}</Text>
+                <Text style={styles.statLabel}>{s.label}</Text>
               </View>
-              <Text style={styles.menuLabel}>{item.label}</Text>
-            </View>
-          ))}
-        </View>
-
-        <Text style={styles.sectionLabel}>Mode</Text>
-        <View style={styles.menuGroup}>
-          <Pressable
-            style={({ pressed }) => [styles.menuItem, pressed && styles.pressed]}
-            onPress={() => router.replace('/(user)')}
-          >
-            <View style={styles.menuIcon}>
-              <MaterialIcons name="swap-horiz" size={18} color={Colors.primary} />
-            </View>
-            <Text style={styles.menuLabel}>Masuk sebagai User</Text>
-            <MaterialIcons name="chevron-right" size={18} color={Colors.outline} />
-          </Pressable>
+            ))
+          )}
         </View>
 
         <Text style={styles.sectionLabel}>Lainnya</Text>
         <View style={styles.menuGroup}>
-          <Pressable
-            style={({ pressed }) => [styles.menuItem, pressed && styles.pressed]}
-            onPress={() => router.push('/(settings)/faq')}
-          >
-            <View style={styles.menuIcon}>
-              <MaterialIcons name="help-outline" size={18} color={Colors.primary} />
-            </View>
-            <Text style={styles.menuLabel}>Bantuan & FAQ</Text>
-            <MaterialIcons name="chevron-right" size={18} color={Colors.outline} />
-          </Pressable>
           <Pressable
             style={({ pressed }) => [styles.menuItem, pressed && styles.pressed]}
             onPress={() => router.push('/(settings)/about')}
@@ -86,14 +84,15 @@ export default function OfficerProfileScreen() {
               <MaterialIcons name="info-outline" size={18} color={Colors.primary} />
             </View>
             <Text style={styles.menuLabel}>Tentang Aplikasi</Text>
-            <MaterialIcons name="chevron-right" size={18} color={Colors.outline} />
+            <Text style={styles.menuMeta}>Versi 1.0.0</Text>
+            <MaterialIcons name="chevron-right" size={20} color={Colors.outline} />
           </Pressable>
         </View>
 
         <View style={styles.menuGroup}>
           <Pressable
             style={({ pressed }) => [styles.menuItem, pressed && styles.pressed]}
-            onPress={() => router.replace('/(auth)/login')}
+            onPress={logout}
           >
             <View style={[styles.menuIcon, styles.menuIconDanger]}>
               <MaterialIcons name="logout" size={18} color={Colors.error} />
@@ -134,7 +133,7 @@ const styles = StyleSheet.create({
 
   statsCard: {
     marginHorizontal: 20, marginBottom: 24,
-    flexDirection: 'row',
+    flexDirection: 'row', minHeight: 72,
     backgroundColor: Colors.surfaceContainerLow,
     borderRadius: 16, padding: 16,
   },
@@ -164,4 +163,5 @@ const styles = StyleSheet.create({
   menuIconDanger: { backgroundColor: Colors.errorContainer },
   menuLabel: { flex: 1, fontFamily: 'Inter_500Medium', fontSize: 15, color: Colors.onSurface },
   menuLabelDanger: { color: Colors.error },
+  menuMeta: { fontFamily: 'Inter_400Regular', fontSize: 13, color: Colors.onSurfaceVariant },
 });

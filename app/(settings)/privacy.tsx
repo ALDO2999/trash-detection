@@ -1,9 +1,8 @@
-import { useState } from 'react';
 import {
+  Alert,
   Pressable,
   ScrollView,
   StyleSheet,
-  Switch,
   Text,
   View,
 } from 'react-native';
@@ -11,6 +10,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors } from '../../constants/colors';
+import { useAuth } from '../../context/AuthContext';
+import UserService from '../../services/user.service';
+import { getApiErrorMessage } from '../../hooks/useApiError';
 
 const POLICY_SECTIONS = [
   {
@@ -36,7 +38,42 @@ const POLICY_SECTIONS = [
 ];
 
 export default function PrivacyScreen() {
-  const [shareStats, setShareStats] = useState(true);
+  const { logout } = useAuth();
+
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      'Hapus Akun & Data',
+      'Semua data Anda termasuk riwayat pengajuan, poin, dan informasi pribadi akan dihapus permanen. Tindakan ini tidak dapat dibatalkan.',
+      [
+        { text: 'Batal', style: 'cancel' },
+        {
+          text: 'Hapus Akun',
+          style: 'destructive',
+          onPress: () => {
+            Alert.alert(
+              'Konfirmasi Terakhir',
+              'Anda yakin ingin menghapus akun? Data tidak dapat dipulihkan.',
+              [
+                { text: 'Tidak', style: 'cancel' },
+                {
+                  text: 'Ya, Hapus',
+                  style: 'destructive',
+                  onPress: async () => {
+                    try {
+                      await UserService.deleteAccount();
+                      await logout();
+                    } catch (err) {
+                      Alert.alert('Gagal', getApiErrorMessage(err));
+                    }
+                  },
+                },
+              ],
+            );
+          },
+        },
+      ],
+    );
+  };
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -63,19 +100,6 @@ export default function PrivacyScreen() {
           </Text>
         </View>
 
-        {/* Preferences */}
-        <Text style={styles.sectionLabel}>Preferensi Data</Text>
-        <View style={styles.card}>
-          <ToggleRow
-            icon="leaderboard"
-            title="Tampil di Leaderboard"
-            subtitle="Tampilkan nama & poin Anda di peringkat publik"
-            value={shareStats}
-            onValueChange={setShareStats}
-            last
-          />
-        </View>
-
         {/* Policy */}
         <Text style={styles.sectionLabel}>Kebijakan Privasi</Text>
         <View style={styles.policyList}>
@@ -92,14 +116,13 @@ export default function PrivacyScreen() {
           ))}
         </View>
 
-        {/* Danger actions */}
+        {/* Danger zone */}
+        <Text style={styles.sectionLabel}>Zona Bahaya</Text>
         <View style={styles.card}>
-          <Pressable style={({ pressed }) => [styles.actionRow, pressed && styles.pressed]}>
-            <MaterialIcons name="download" size={20} color={Colors.secondary} />
-            <Text style={styles.actionText}>Unduh Data Saya</Text>
-            <MaterialIcons name="chevron-right" size={20} color={Colors.outline} />
-          </Pressable>
-          <Pressable style={({ pressed }) => [styles.actionRow, styles.actionRowLast, pressed && styles.pressed]}>
+          <Pressable
+            style={({ pressed }) => [styles.actionRow, styles.actionRowLast, pressed && styles.pressed]}
+            onPress={handleDeleteAccount}
+          >
             <MaterialIcons name="delete-outline" size={20} color={Colors.error} />
             <Text style={[styles.actionText, { color: Colors.error }]}>Hapus Akun & Data</Text>
             <MaterialIcons name="chevron-right" size={20} color={Colors.outline} />
@@ -109,30 +132,6 @@ export default function PrivacyScreen() {
         <Text style={styles.footnote}>Terakhir diperbarui: Juni 2026</Text>
       </ScrollView>
     </SafeAreaView>
-  );
-}
-
-function ToggleRow({
-  icon, title, subtitle, value, onValueChange, last,
-}: {
-  icon: any; title: string; subtitle: string; value: boolean; onValueChange: (v: boolean) => void; last?: boolean;
-}) {
-  return (
-    <View style={[styles.toggleRow, last && styles.toggleRowLast]}>
-      <View style={styles.toggleIcon}>
-        <MaterialIcons name={icon} size={20} color={Colors.primary} />
-      </View>
-      <View style={styles.toggleInfo}>
-        <Text style={styles.toggleTitle}>{title}</Text>
-        <Text style={styles.toggleSubtitle}>{subtitle}</Text>
-      </View>
-      <Switch
-        value={value}
-        onValueChange={onValueChange}
-        trackColor={{ false: Colors.outlineVariant, true: `${Colors.primary}66` }}
-        thumbColor={value ? Colors.primary : Colors.outline}
-      />
-    </View>
   );
 }
 
@@ -170,20 +169,6 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surfaceContainerLowest, borderRadius: 16,
     borderWidth: 1, borderColor: Colors.surfaceContainerHigh, overflow: 'hidden', marginBottom: 16,
   },
-
-  toggleRow: {
-    flexDirection: 'row', alignItems: 'center', gap: 14,
-    paddingHorizontal: 16, paddingVertical: 14,
-    borderBottomWidth: 1, borderBottomColor: Colors.surfaceContainerLow,
-  },
-  toggleRowLast: { borderBottomWidth: 0 },
-  toggleIcon: {
-    width: 36, height: 36, borderRadius: 10, backgroundColor: `${Colors.primary}15`,
-    alignItems: 'center', justifyContent: 'center',
-  },
-  toggleInfo: { flex: 1 },
-  toggleTitle: { fontFamily: 'Inter_600SemiBold', fontSize: 14, color: Colors.onSurface },
-  toggleSubtitle: { fontFamily: 'Inter_400Regular', fontSize: 12, color: Colors.onSurfaceVariant, marginTop: 2, lineHeight: 16 },
 
   policyList: { gap: 12, marginBottom: 16 },
   policyCard: {

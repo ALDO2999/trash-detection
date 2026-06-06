@@ -62,6 +62,7 @@ export default function OfficerLayout() {
           ),
         }}
       />
+      <Tabs.Screen name="verify" options={{ href: null }} />
     </Tabs>
   );
 }

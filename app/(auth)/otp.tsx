@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import {
   Alert,
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -95,11 +98,12 @@ export default function OtpScreen() {
         >
           <MaterialIcons name="arrow-back" size={24} color={Colors.primary} />
         </Pressable>
-        <Text style={styles.headerTitle}>WasteSort AI</Text>
+        <Text style={styles.headerTitle}>EcoPoint</Text>
         <View style={styles.headerSpacer} />
       </View>
 
-      <View style={styles.content}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
         {/* Icon */}
         <View style={styles.iconContainer}>
           <MaterialIcons name="mark-email-unread" size={40} color={Colors.onPrimaryContainer} />
@@ -169,7 +173,8 @@ export default function OtpScreen() {
             </Text>
           </View>
         </View>
-      </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -228,10 +233,11 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   content: {
-    flex: 1,
+    flexGrow: 1,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 20,
+    paddingTop: 40,
     paddingBottom: 40,
     gap: 20,
   },

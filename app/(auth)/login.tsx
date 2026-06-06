@@ -27,7 +27,7 @@ export default function LoginScreen() {
   const [passwordFocused, setPasswordFocused] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const isValid = email.includes('@') && password.length >= 6;
+  const isValid = email.includes('@') && password.length >= 8;
 
   const handleLogin = async () => {
     if (!isValid || loading) return;
@@ -54,11 +54,11 @@ export default function LoginScreen() {
         >
           <MaterialIcons name="arrow-back" size={24} color={Colors.primary} />
         </Pressable>
-        <Text style={styles.headerTitle}>WasteSort AI</Text>
+        <Text style={styles.headerTitle}>EcoPoint</Text>
       </View>
 
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.flex}
       >
         <ScrollView
@@ -113,7 +113,7 @@ export default function LoginScreen() {
                 <Text style={[styles.label, passwordFocused && styles.labelFocused]}>
                   Kata Sandi
                 </Text>
-                <Pressable>
+                <Pressable onPress={() => router.push('/(auth)/forgot-password')}>
                   <Text style={styles.forgotText}>Lupa Password?</Text>
                 </Pressable>
               </View>

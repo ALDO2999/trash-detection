@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import {
   Alert,
+  Image,
+  Linking,
+  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -11,90 +14,165 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
+import { CameraView, useCameraPermissions } from 'expo-camera';
+import QRCode from 'react-native-qrcode-svg';
 import { Colors } from '../../constants/colors';
 import { WASTE_CATEGORIES, WasteType, calcPoints } from '../../constants/mockData';
+import ScanService, { ScanResult, WasteType as ApiWasteType } from '../../services/scan.service';
+import SubmissionService from '../../services/submission.service';
+import WasteBankService, { WasteBank } from '../../services/wasteBank.service';
+import { getApiErrorMessage } from '../../hooks/useApiError';
 
 type ScanStep = 'camera' | 'analyzing' | 'review' | 'summary' | 'qr';
 
 interface ScannedItem {
   id: string;
   type: WasteType;
-  qty: number;
+  apiWasteType: ApiWasteType;
+  scanResultId: string;
   confidence: number;
+  imageUri: string;
 }
 
-const DUMMY_RESULTS: { type: WasteType; confidence: number; name: string }[] = [
-  { type: 'Plastic', confidence: 92, name: 'Botol PET 600ml' },
-  { type: 'Paper', confidence: 78, name: 'Majalah Bekas' },
-  { type: 'Metal', confidence: 85, name: 'Kaleng Aluminium' },
-  { type: 'Cardboard', confidence: 80, name: 'Kardus Bekas' },
-  { type: 'Battery', confidence: 95, name: 'Baterai AA' },
+// Map API WasteType ke frontend WasteType (mockData format)
+const API_TO_FRONTEND: Record<ApiWasteType, WasteType> = {
+  PLASTIC: 'Plastic',
+  CARDBOARD: 'Cardboard',
+  METAL: 'Metal',
+  BATTERY: 'Battery',
+  CLOTHES: 'Clothes',
+  SHOES: 'Shoes',
+};
+
+// Map frontend WasteType → API WasteType (untuk koreksi kategori manual)
+const FRONTEND_TO_API: Record<WasteType, ApiWasteType> = {
+  Plastic: 'PLASTIC',
+  Cardboard: 'CARDBOARD',
+  Metal: 'METAL',
+  Battery: 'BATTERY',
+  Clothes: 'CLOTHES',
+  Shoes: 'SHOES',
+};
+
+const SORTING_TIPS = [
+  'Pastikan hanya ada satu jenis sampah dominan dalam bingkai agar AI lebih akurat.',
+  'Gunakan pencahayaan yang cukup dan latar belakang polos.',
+  'Bersihkan sampah dari sisa makanan/cairan sebelum difoto.',
+  'Untuk botol plastik, remas terlebih dahulu agar bentuknya jelas.',
+  'Jika hasil deteksi kurang tepat, gunakan "Ganti Kategori" untuk koreksi manual.',
 ];
 
 export default function ScanScreen() {
   const [step, setStep] = useState<ScanStep>('camera');
   const [progress, setProgress] = useState(0);
-  const [detectedIdx, setDetectedIdx] = useState(0);
+  const [scanResult, setScanResult] = useState<ScanResult | null>(null);
+  const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
   const [scannedItems, setScannedItems] = useState<ScannedItem[]>([]);
-  const [qrTimer, setQrTimer] = useState(7200);
+  const [submittedId, setSubmittedId] = useState<string | null>(null);
   const [calcWeight, setCalcWeight] = useState('1');
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [facing, setFacing] = useState<'front' | 'back'>('back');
+  const [overrideType, setOverrideType] = useState<WasteType | null>(null);
+  const [showCategoryPicker, setShowCategoryPicker] = useState(false);
+  const [wasteBanks, setWasteBanks] = useState<WasteBank[]>([]);
+  const [cameraPermission, requestCameraPermission] = useCameraPermissions();
+  const cameraRef = useRef<CameraView>(null);
 
   useEffect(() => {
-    if (step === 'qr') {
-      timerRef.current = setInterval(() => {
-        setQrTimer((t) => {
-          if (t <= 0) { clearInterval(timerRef.current!); return 0; }
-          return t - 1;
-        });
-      }, 1000);
-    } else {
-      if (timerRef.current) clearInterval(timerRef.current);
-    }
-    return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  }, [step]);
+    WasteBankService.getAll().then(setWasteBanks).catch(() => {});
+  }, []);
 
-  const formatTimer = (secs: number) => {
-    const h = Math.floor(secs / 3600).toString().padStart(2, '0');
-    const m = Math.floor((secs % 3600) / 60).toString().padStart(2, '0');
-    const s = (secs % 60).toString().padStart(2, '0');
-    return `${h}:${m}:${s}`;
+  const showGuide = () => {
+    Alert.alert(
+      'Panduan Scan Sampah',
+      SORTING_TIPS.map((t, i) => `${i + 1}. ${t}`).join('\n\n'),
+      [{ text: 'Mengerti' }],
+    );
   };
 
-  const handleCapture = () => {
+  const openMaps = (bank: WasteBank) => {
+    const url = `https://www.google.com/maps/search/?api=1&query=${bank.latitude},${bank.longitude}`;
+    Linking.openURL(url).catch(() => Alert.alert('Gagal', 'Tidak dapat membuka peta.'));
+  };
+
+  const takePhoto = async () => {
+    if (!cameraRef.current) return;
+    try {
+      const photo = await cameraRef.current.takePictureAsync({ quality: 0.8 });
+      if (photo?.uri) await uploadAndAnalyze(photo.uri);
+    } catch {
+      Alert.alert('Gagal', 'Tidak dapat mengambil foto. Coba lagi.');
+    }
+  };
+
+  const pickAndScan = async () => {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+      Alert.alert('Izin Diperlukan', 'Izinkan akses galeri untuk memilih foto sampah.');
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      quality: 0.8,
+    });
+    if (result.canceled || !result.assets[0]) return;
+    await uploadAndAnalyze(result.assets[0].uri, result.assets[0].mimeType);
+  };
+
+  const uploadAndAnalyze = async (uri: string, mimeType?: string) => {
+    setSelectedImageUri(uri);
     setStep('analyzing');
     setProgress(0);
-    const idx = Math.floor(Math.random() * DUMMY_RESULTS.length);
-    setDetectedIdx(idx);
+
+    // Progress animasi sementara upload berlangsung
     let p = 0;
     const interval = setInterval(() => {
-      p += Math.random() * 18 + 8;
-      if (p >= 100) {
-        p = 100;
-        clearInterval(interval);
-        setTimeout(() => setStep('review'), 400);
-      }
-      setProgress(Math.min(Math.round(p), 100));
+      p += Math.random() * 12 + 5;
+      if (p >= 90) { clearInterval(interval); p = 90; }
+      setProgress(Math.min(Math.round(p), 90));
     }, 150);
+
+    try {
+      const result = await ScanService.scanImage(uri, mimeType ?? 'image/jpeg');
+      clearInterval(interval);
+      setProgress(100);
+      setScanResult(result);
+      setOverrideType(null);
+      setTimeout(() => setStep('review'), 400);
+    } catch (err) {
+      clearInterval(interval);
+      setStep('camera');
+      Alert.alert('Scan Gagal', getApiErrorMessage(err));
+    }
   };
 
   const handleRetake = () => {
+    setScanResult(null);
+    setSelectedImageUri(null);
+    setOverrideType(null);
     setStep('camera');
   };
 
   const addCurrentItem = () => {
-    const detected = DUMMY_RESULTS[detectedIdx];
+    if (!scanResult) return;
+    const frontendType = overrideType ?? API_TO_FRONTEND[scanResult.predictedType];
     const newItem: ScannedItem = {
       id: Date.now().toString(),
-      type: detected.type,
-      qty: 1,
-      confidence: detected.confidence,
+      type: frontendType,
+      apiWasteType: FRONTEND_TO_API[frontendType],
+      scanResultId: scanResult.scanResultId,
+      confidence: scanResult.confidence,
+      imageUri: selectedImageUri ?? '',
     };
     setScannedItems((prev) => [...prev, newItem]);
   };
 
   const handleAddCategory = () => {
     addCurrentItem();
+    setScanResult(null);
+    setSelectedImageUri(null);
+    setOverrideType(null);
     setStep('camera');
   };
 
@@ -105,12 +183,9 @@ export default function ScanScreen() {
 
   const handleRemoveItem = (id: string) => {
     const item = scannedItems.find((it) => it.id === id);
-    const name = item
-      ? DUMMY_RESULTS.find((r) => r.type === item.type)?.name ?? item.type
-      : 'barang ini';
     Alert.alert(
       'Hapus Barang?',
-      `"${name}" akan dihapus dari batch. Tindakan ini tidak bisa dibatalkan.`,
+      `"${item?.type ?? 'barang ini'}" akan dihapus dari batch.`,
       [
         { text: 'Batal', style: 'cancel' },
         {
@@ -122,38 +197,96 @@ export default function ScanScreen() {
     );
   };
 
-  const handleSubmit = () => {
-    setQrTimer(7200);
-    setStep('qr');
+  const handleSubmit = async () => {
+    if (scannedItems.length === 0 || submitting) return;
+    setSubmitting(true);
+    try {
+      // Buat submission untuk item pertama (satu submission per scan)
+      const first = scannedItems[0];
+      const submission = await SubmissionService.create(
+        first.scanResultId,
+        first.apiWasteType,
+        parseFloat(calcWeight) || undefined,
+      );
+      setSubmittedId(submission.id);
+      setStep('qr');
+    } catch (err) {
+      Alert.alert('Gagal', getApiErrorMessage(err));
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleBackToHome = () => {
     setScannedItems([]);
+    setScanResult(null);
+    setSelectedImageUri(null);
+    setSubmittedId(null);
     setStep('camera');
     router.replace('/(user)');
   };
 
-  const detectedResult = DUMMY_RESULTS[detectedIdx];
-  const detectedCat = WASTE_CATEGORIES.find((c) => c.id === detectedResult.type)!;
-  const calcResult = calcPoints(detectedResult.type, parseFloat(calcWeight) || 0);
+  const effectiveType: WasteType = scanResult
+    ? (overrideType ?? API_TO_FRONTEND[scanResult.predictedType])
+    : WASTE_CATEGORIES[0].id;
+  const detectedCat = WASTE_CATEGORIES.find((c) => c.id === effectiveType)!;
+  const isOverridden = overrideType !== null;
+  const detectedConfidence = scanResult?.confidence ?? 0;
+  const calcResult = scanResult
+    ? calcPoints(effectiveType, parseFloat(calcWeight) || 0)
+    : 0;
 
   const confColor =
-    detectedResult.confidence >= 85
-      ? Colors.primary
-      : detectedResult.confidence >= 70
-      ? Colors.tertiary
-      : Colors.error;
+    detectedConfidence >= 85 ? Colors.primary
+    : detectedConfidence >= 70 ? Colors.tertiary
+    : Colors.error;
   const confLabel =
-    detectedResult.confidence >= 85
-      ? 'Tinggi'
-      : detectedResult.confidence >= 70
-      ? 'Sedang'
-      : 'Rendah';
+    detectedConfidence >= 85 ? 'Tinggi'
+    : detectedConfidence >= 70 ? 'Sedang'
+    : 'Rendah';
 
   // ─── CAMERA ───────────────────────────────────────────────────────────────
   if (step === 'camera') {
+    // Permission belum diminta
+    if (!cameraPermission) {
+      return <View style={styles.cameraScreen} />;
+    }
+
+    // Permission ditolak — tampilkan screen minta izin
+    if (!cameraPermission.granted) {
+      return (
+        <View style={[styles.cameraScreen, { alignItems: 'center', justifyContent: 'center', gap: 20, padding: 32 }]}>
+          <MaterialIcons name="camera-alt" size={60} color="rgba(255,255,255,0.6)" />
+          <Text style={{ fontFamily: 'PlusJakartaSans_700Bold', fontSize: 20, color: '#fff', textAlign: 'center' }}>
+            Izin Kamera Diperlukan
+          </Text>
+          <Text style={{ fontFamily: 'Inter_400Regular', fontSize: 14, color: 'rgba(255,255,255,0.7)', textAlign: 'center', lineHeight: 21 }}>
+            EcoPoint memerlukan akses kamera untuk mendeteksi jenis sampah secara otomatis menggunakan AI.
+          </Text>
+          <Pressable
+            onPress={requestCameraPermission}
+            style={({ pressed }) => [styles.permissionBtn, pressed && { opacity: 0.8 }]}
+          >
+            <Text style={styles.permissionBtnText}>Izinkan Akses Kamera</Text>
+          </Pressable>
+          <Pressable onPress={() => router.replace('/(user)')}>
+            <Text style={{ fontFamily: 'Inter_400Regular', fontSize: 14, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>
+              Kembali
+            </Text>
+          </Pressable>
+        </View>
+      );
+    }
+
     return (
       <View style={styles.cameraScreen}>
+        {/* Live camera preview */}
+        <CameraView
+          ref={cameraRef}
+          style={StyleSheet.absoluteFill}
+          facing={facing}
+        />
+
         {/* Top bar */}
         <SafeAreaView edges={['top']} style={styles.cameraTopBar}>
           <Pressable
@@ -169,8 +302,11 @@ export default function ScanScreen() {
             <Text style={styles.aiReadyText}>AI READY</Text>
           </View>
 
-          <Pressable style={({ pressed }) => [styles.cameraIconBtn, pressed && { opacity: 0.6 }]}>
-            <MaterialIcons name="settings" size={24} color="#fff" />
+          <Pressable
+            onPress={() => setFacing((f) => (f === 'back' ? 'front' : 'back'))}
+            style={({ pressed }) => [styles.cameraIconBtn, pressed && { opacity: 0.6 }]}
+          >
+            <MaterialIcons name="flip-camera-android" size={24} color="#fff" />
           </Pressable>
         </SafeAreaView>
 
@@ -198,7 +334,7 @@ export default function ScanScreen() {
           {/* Capture row */}
           <View style={styles.captureRow}>
             <Pressable
-              onPress={handleCapture}
+              onPress={pickAndScan}
               style={({ pressed }) => [styles.captureSecondaryBtn, pressed && { opacity: 0.6 }]}
             >
               <MaterialIcons name="photo-library" size={26} color="#fff" />
@@ -206,13 +342,16 @@ export default function ScanScreen() {
             </Pressable>
 
             <Pressable
-              onPress={handleCapture}
+              onPress={takePhoto}
               style={({ pressed }) => [styles.captureBtn, pressed && { transform: [{ scale: 0.94 }] }]}
             >
               <View style={styles.captureBtnInner} />
             </Pressable>
 
-            <Pressable style={({ pressed }) => [styles.captureSecondaryBtn, pressed && { opacity: 0.6 }]}>
+            <Pressable
+              onPress={showGuide}
+              style={({ pressed }) => [styles.captureSecondaryBtn, pressed && { opacity: 0.6 }]}
+            >
               <MaterialIcons name="help-outline" size={26} color="#fff" />
               <Text style={styles.captureSecondaryText}>Panduan</Text>
             </Pressable>
@@ -265,7 +404,7 @@ export default function ScanScreen() {
                 <MaterialIcons name="category" size={16} color={Colors.secondary} />
                 <Text style={styles.analyzingStatLabel}>Material</Text>
                 <Text style={styles.analyzingStatValue}>
-                  {progress > 50 ? detectedResult.type : '...'}
+                  {progress > 50 && scanResult ? API_TO_FRONTEND[scanResult.predictedType] : '...'}
                 </Text>
               </View>
             </View>
@@ -301,11 +440,15 @@ export default function ScanScreen() {
             <Text style={styles.reviewDetectedText}>Item berhasil dideteksi</Text>
           </View>
 
-          {/* Image placeholder */}
+          {/* Image */}
           <View style={styles.reviewImageBox}>
-            <View style={[styles.reviewImagePlaceholder, { backgroundColor: detectedCat.bgColor }]}>
-              <MaterialIcons name={detectedCat.icon as any} size={80} color={detectedCat.color} />
-            </View>
+            {selectedImageUri ? (
+              <Image source={{ uri: selectedImageUri }} style={[styles.reviewImagePlaceholder, { resizeMode: 'cover' }]} />
+            ) : (
+              <View style={[styles.reviewImagePlaceholder, { backgroundColor: detectedCat.bgColor }]}>
+                <MaterialIcons name={detectedCat.icon as any} size={80} color={detectedCat.color} />
+              </View>
+            )}
             <View style={styles.aiVerifiedBadge}>
               <MaterialIcons name="verified" size={12} color="#fff" />
               <Text style={styles.aiVerifiedText}>AI Terverifikasi</Text>
@@ -313,7 +456,7 @@ export default function ScanScreen() {
           </View>
 
           {/* Item info */}
-          <Text style={styles.reviewItemName}>{detectedResult.name}</Text>
+          <Text style={styles.reviewItemName}>{detectedCat.label}</Text>
           <View style={styles.reviewCategoryRow}>
             <MaterialIcons name="recycling" size={15} color={Colors.primary} />
             <Text style={styles.reviewCategoryLabel}>Kategori: </Text>
@@ -331,7 +474,7 @@ export default function ScanScreen() {
               </View>
               <View style={styles.accuracyValueRow}>
                 <Text style={[styles.accuracyValue, { color: confColor }]}>
-                  {detectedResult.confidence}%
+                  {detectedConfidence}%
                 </Text>
                 <View style={[styles.accuracyTag, { backgroundColor: `${confColor}1A` }]}>
                   <Text style={[styles.accuracyTagText, { color: confColor }]}>{confLabel}</Text>
@@ -342,20 +485,25 @@ export default function ScanScreen() {
               <View
                 style={[
                   styles.accuracyFill,
-                  { width: `${detectedResult.confidence}%`, backgroundColor: confColor },
+                  { width: `${detectedConfidence}%`, backgroundColor: confColor },
                 ]}
               />
             </View>
-            {detectedResult.confidence < 70 && (
+            {detectedConfidence < 70 && (
               <Text style={styles.accuracyHint}>
                 Keyakinan rendah — pastikan foto jelas atau ganti kategori secara manual.
               </Text>
             )}
           </View>
 
-          <Pressable style={({ pressed }) => [styles.changeCategoryBtn, pressed && { opacity: 0.6 }]}>
+          <Pressable
+            style={({ pressed }) => [styles.changeCategoryBtn, pressed && { opacity: 0.6 }]}
+            onPress={() => setShowCategoryPicker(true)}
+          >
             <MaterialIcons name="edit" size={14} color={Colors.primary} />
-            <Text style={styles.changeCategoryText}>Ganti Kategori</Text>
+            <Text style={styles.changeCategoryText}>
+              {isOverridden ? 'Kategori diubah manual · Ganti lagi' : 'Ganti Kategori'}
+            </Text>
           </Pressable>
 
           {/* Point calculator */}
@@ -434,15 +582,52 @@ export default function ScanScreen() {
             <View style={{ flex: 1, gap: 2 }}>
               <Text style={styles.tipTitle}>Tips Eco-Sorting</Text>
               <Text style={styles.tipText}>
-                {detectedResult.type === 'Plastic'
+                {scanResult?.predictedType === 'PLASTIC'
                   ? 'Lepas label plastik dan remas botol untuk menghemat ruang di tempat sampah daur ulang.'
-                  : detectedResult.type === 'Paper'
-                  ? 'Pastikan kertas kering dan bersih sebelum disetor agar nilainya optimal.'
+                  : scanResult?.predictedType === 'CARDBOARD'
+                  ? 'Lipat/ratakan kardus agar mudah ditumpuk dan ditimbang petugas.'
                   : 'Pisahkan sampah ini dari sampah organik agar mudah didaur ulang.'}
               </Text>
             </View>
           </View>
         </ScrollView>
+
+        {/* Category picker modal */}
+        <Modal
+          visible={showCategoryPicker}
+          transparent
+          animationType="slide"
+          onRequestClose={() => setShowCategoryPicker(false)}
+        >
+          <Pressable style={styles.modalBackdrop} onPress={() => setShowCategoryPicker(false)}>
+            <Pressable style={styles.modalSheet} onPress={(e) => e.stopPropagation()}>
+              <View style={styles.modalHandle} />
+              <Text style={styles.modalTitle}>Pilih Kategori Sampah</Text>
+              <Text style={styles.modalSubtitle}>Koreksi jika hasil deteksi AI kurang tepat.</Text>
+              <View style={styles.modalGrid}>
+                {WASTE_CATEGORIES.map((cat) => {
+                  const active = cat.id === effectiveType;
+                  return (
+                    <Pressable
+                      key={cat.id}
+                      style={[styles.modalCatItem, active && { borderColor: cat.color, backgroundColor: cat.bgColor }]}
+                      onPress={() => {
+                        setOverrideType(cat.id);
+                        setShowCategoryPicker(false);
+                      }}
+                    >
+                      <View style={[styles.modalCatIcon, { backgroundColor: cat.bgColor }]}>
+                        <MaterialIcons name={cat.icon as any} size={22} color={cat.color} />
+                      </View>
+                      <Text style={styles.modalCatLabel}>{cat.label}</Text>
+                      {active && <MaterialIcons name="check-circle" size={16} color={cat.color} />}
+                    </Pressable>
+                  );
+                })}
+              </View>
+            </Pressable>
+          </Pressable>
+        </Modal>
       </SafeAreaView>
     );
   }
@@ -517,7 +702,7 @@ export default function ScanScreen() {
                     </View>
                     <View style={{ flex: 1, gap: 5 }}>
                       <Text style={styles.summaryItemName}>
-                        {DUMMY_RESULTS.find((r) => r.type === item.type)?.name ?? item.type}
+                        {cat.label}
                       </Text>
                       <View style={[styles.summaryItemChip, { backgroundColor: cat.bgColor }]}>
                         <Text style={[styles.summaryItemChipText, { color: cat.color }]}>
@@ -547,30 +732,37 @@ export default function ScanScreen() {
           </View>
 
           {/* Drop-off location */}
-          <Text style={styles.sectionLabel}>TITIK PENJEMPUTAN / BANK SAMPAH</Text>
-          <View style={styles.mapCard}>
-            <View style={styles.mapPlaceholder}>
-              <MaterialIcons name="map" size={40} color={Colors.outlineVariant} />
-              <Text style={styles.mapPlaceholderText}>Peta lokasi</Text>
-              <View style={styles.mapDistanceBadge}>
-                <MaterialIcons name="near-me" size={12} color={Colors.onSurface} />
-                <Text style={styles.mapDistanceText}>800m lagi</Text>
+          <Text style={styles.sectionLabel}>TITIK DROP-OFF / BANK SAMPAH</Text>
+          {wasteBanks.length === 0 ? (
+            <View style={styles.mapCard}>
+              <View style={styles.locationInfo}>
+                <Text style={styles.locationAddress}>Memuat lokasi bank sampah...</Text>
               </View>
             </View>
-            <View style={styles.locationInfo}>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.locationName}>Waste Bank Sejahtera</Text>
-                <Text style={styles.locationAddress}>Jl. Kebangsaan No. 12, Jakarta</Text>
-                <View style={styles.locationHours}>
-                  <MaterialIcons name="access-time" size={13} color={Colors.onSurfaceVariant} />
-                  <Text style={styles.locationHoursText}>Buka sampai 17:00</Text>
+          ) : (
+            wasteBanks.slice(0, 3).map((bank) => (
+              <View key={bank.id} style={styles.bankCard}>
+                <View style={styles.bankIcon}>
+                  <MaterialIcons name="store" size={22} color={Colors.primary} />
                 </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.locationName}>{bank.name}</Text>
+                  <Text style={styles.locationAddress}>{bank.address}, {bank.city}</Text>
+                  <View style={styles.locationHours}>
+                    <MaterialIcons name="access-time" size={13} color={Colors.onSurfaceVariant} />
+                    <Text style={styles.locationHoursText}>{bank.openHours}</Text>
+                  </View>
+                </View>
+                <Pressable
+                  style={({ pressed }) => [styles.navigateBtn, pressed && { opacity: 0.6 }]}
+                  onPress={() => openMaps(bank)}
+                  hitSlop={8}
+                >
+                  <MaterialIcons name="navigation" size={20} color={Colors.primary} />
+                </Pressable>
               </View>
-              <Pressable style={styles.navigateBtn}>
-                <MaterialIcons name="navigation" size={20} color={Colors.primary} />
-              </Pressable>
-            </View>
-          </View>
+            ))
+          )}
 
           <Pressable
             style={({ pressed }) => [
@@ -621,17 +813,18 @@ export default function ScanScreen() {
         <View style={styles.qrCard}>
           <Text style={styles.qrCardLabel}>YOUR DROP-OFF QR CODE</Text>
           <View style={styles.qrCodeBox}>
-            <View style={styles.qrCodePlaceholder}>
-              <MaterialIcons name="qr-code-2" size={120} color={Colors.onSurface} />
-            </View>
+            {submittedId ? (
+              <QRCode value={submittedId} size={160} />
+            ) : (
+              <View style={styles.qrCodePlaceholder}>
+                <MaterialIcons name="qr-code-2" size={120} color={Colors.onSurface} />
+              </View>
+            )}
           </View>
+          <Text style={styles.qrIdText}>ID: {submittedId?.slice(0, 8)}</Text>
           <Text style={styles.qrValidText}>
-            QR berlaku 2 jam — tunjukkan ke petugas saat drop-off
+            Tunjukkan ke petugas saat menyerahkan sampah
           </Text>
-          <View style={styles.qrTimerBadge}>
-            <MaterialIcons name="timer" size={14} color="#c62828" />
-            <Text style={styles.qrTimerText}>{formatTimer(qrTimer)}</Text>
-          </View>
         </View>
 
         {/* Actions */}
@@ -641,11 +834,6 @@ export default function ScanScreen() {
         >
           <MaterialIcons name="home" size={20} color="#fff" />
           <Text style={styles.homeBtnText}>Kembali ke Home</Text>
-        </Pressable>
-
-        <Pressable style={({ pressed }) => [styles.saveBtn, pressed && { opacity: 0.7 }]}>
-          <MaterialIcons name="download" size={18} color={Colors.onSurface} />
-          <Text style={styles.saveBtnText}>Simpan ke Galeri</Text>
         </Pressable>
 
         {/* Footer info */}
@@ -667,6 +855,11 @@ export default function ScanScreen() {
 const styles = StyleSheet.create({
   // ─── CAMERA ───────────────────────────────────────────────────────────────
   cameraScreen: { flex: 1, backgroundColor: '#111' },
+  permissionBtn: {
+    backgroundColor: Colors.primary, borderRadius: 999,
+    paddingHorizontal: 28, paddingVertical: 14,
+  },
+  permissionBtnText: { fontFamily: 'Inter_600SemiBold', fontSize: 15, color: '#fff' },
   cameraTopBar: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     paddingHorizontal: 20, paddingTop: 8, paddingBottom: 12,
@@ -1026,15 +1219,13 @@ const styles = StyleSheet.create({
   qrCodePlaceholder: {
     width: 160, height: 160, alignItems: 'center', justifyContent: 'center',
   },
+  qrIdText: {
+    fontFamily: 'Inter_600SemiBold', fontSize: 13, color: Colors.onSurfaceVariant, letterSpacing: 0.5,
+  },
   qrValidText: {
     fontFamily: 'Inter_400Regular', fontSize: 14, color: Colors.onSurfaceVariant,
     textAlign: 'center', lineHeight: 20,
   },
-  qrTimerBadge: {
-    flexDirection: 'row', alignItems: 'center', gap: 6,
-    backgroundColor: '#ffebee', paddingHorizontal: 14, paddingVertical: 7, borderRadius: 999,
-  },
-  qrTimerText: { fontFamily: 'Inter_600SemiBold', fontSize: 16, color: '#c62828', letterSpacing: 1 },
   homeBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
     backgroundColor: Colors.primary, borderRadius: 999, height: 56,
@@ -1053,4 +1244,38 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surfaceContainerLow, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999,
   },
   qrFooterChipText: { fontFamily: 'Inter_400Regular', fontSize: 12, color: Colors.onSurfaceVariant },
+
+  // ─── Bank sampah card ───────────────────────────────────────────────────────
+  bankCard: {
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+    backgroundColor: Colors.surfaceContainerLowest, borderRadius: 14, padding: 14,
+    borderWidth: 1, borderColor: Colors.surfaceContainerHigh,
+  },
+  bankIcon: {
+    width: 44, height: 44, borderRadius: 12,
+    backgroundColor: `${Colors.primary}15`, alignItems: 'center', justifyContent: 'center',
+  },
+
+  // ─── Category picker modal ──────────────────────────────────────────────────
+  modalBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', justifyContent: 'flex-end' },
+  modalSheet: {
+    backgroundColor: Colors.surfaceContainerLowest,
+    borderTopLeftRadius: 24, borderTopRightRadius: 24,
+    padding: 24, paddingBottom: 36, gap: 6,
+  },
+  modalHandle: {
+    width: 40, height: 4, borderRadius: 2, backgroundColor: Colors.outlineVariant,
+    alignSelf: 'center', marginBottom: 12,
+  },
+  modalTitle: { fontFamily: 'PlusJakartaSans_700Bold', fontSize: 18, color: Colors.onSurface },
+  modalSubtitle: { fontFamily: 'Inter_400Regular', fontSize: 13, color: Colors.onSurfaceVariant, marginBottom: 12 },
+  modalGrid: { gap: 8 },
+  modalCatItem: {
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+    paddingHorizontal: 14, paddingVertical: 12, borderRadius: 12,
+    borderWidth: 1.5, borderColor: Colors.surfaceContainerHigh,
+    backgroundColor: Colors.surfaceContainerLowest,
+  },
+  modalCatIcon: { width: 40, height: 40, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+  modalCatLabel: { flex: 1, fontFamily: 'Inter_600SemiBold', fontSize: 15, color: Colors.onSurface },
 });

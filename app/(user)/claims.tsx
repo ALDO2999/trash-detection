@@ -1,15 +1,20 @@
-import { useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import {
+  ActivityIndicator,
   Pressable,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { router, useFocusEffect } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors } from '../../constants/colors';
-import { MOCK_SUBMISSIONS, getWasteCategory, SubmissionStatus } from '../../constants/mockData';
+import { WASTE_CATEGORIES } from '../../constants/mockData';
+import SubmissionService, { Submission, SubmissionStatus } from '../../services/submission.service';
+import { WasteType as ApiWasteType } from '../../services/scan.service';
 
 type FilterTab = 'SEMUA' | SubmissionStatus;
 
@@ -26,6 +31,19 @@ const STATUS_CONFIG = {
   DITOLAK: { label: 'Ditolak', color: Colors.error, bg: Colors.errorContainer, icon: 'cancel' as const },
 };
 
+const POINTS_PER_KG: Record<ApiWasteType, number> = {
+  PLASTIC: 10, CARDBOARD: 8, METAL: 20, BATTERY: 50, CLOTHES: 15, SHOES: 25,
+};
+
+const API_TO_FRONTEND: Record<ApiWasteType, string> = {
+  PLASTIC: 'Plastic', CARDBOARD: 'Cardboard',
+  METAL: 'Metal', BATTERY: 'Battery', CLOTHES: 'Clothes', SHOES: 'Shoes',
+};
+
+function getCategory(wasteType: ApiWasteType) {
+  return WASTE_CATEGORIES.find((c) => c.id === API_TO_FRONTEND[wasteType]) ?? WASTE_CATEGORIES[0];
+}
+
 function formatDate(iso: string) {
   const d = new Date(iso);
   return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -33,10 +51,30 @@ function formatDate(iso: string) {
 
 export default function ClaimsScreen() {
   const [activeFilter, setActiveFilter] = useState<FilterTab>('SEMUA');
+  const [submissions, setSubmissions] = useState<Submission[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const hasLoaded = useRef(false);
+
+  const loadSubmissions = useCallback(async (isRefresh = false) => {
+    if (isRefresh) setRefreshing(true); else if (!hasLoaded.current) setLoading(true);
+    try {
+      const data = await SubmissionService.getMySubmissions();
+      setSubmissions(data);
+      hasLoaded.current = true;
+    } catch {
+      // keep existing data on error
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
+
+  useFocusEffect(useCallback(() => { loadSubmissions(); }, [loadSubmissions]));
 
   const filtered = activeFilter === 'SEMUA'
-    ? MOCK_SUBMISSIONS
-    : MOCK_SUBMISSIONS.filter((s) => s.status === activeFilter);
+    ? submissions
+    : submissions.filter((s) => s.status === activeFilter);
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -49,103 +87,118 @@ export default function ClaimsScreen() {
       {/* Filter Tabs */}
       <View style={styles.filterWrapper}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterRow}>
-        {FILTER_TABS.map((tab) => {
-          const count = tab.key === 'SEMUA'
-            ? MOCK_SUBMISSIONS.length
-            : MOCK_SUBMISSIONS.filter((s) => s.status === tab.key).length;
-          const isActive = activeFilter === tab.key;
-          return (
-            <Pressable
-              key={tab.key}
-              style={[styles.filterTab, isActive && styles.filterTabActive]}
-              onPress={() => setActiveFilter(tab.key)}
-            >
-              <Text style={[styles.filterTabText, isActive && styles.filterTabTextActive]}>
-                {tab.label}
-              </Text>
-              <View style={[styles.filterCount, isActive && styles.filterCountActive]}>
-                <Text style={[styles.filterCountText, isActive && styles.filterCountTextActive]}>
-                  {count}
+          {FILTER_TABS.map((tab) => {
+            const count = tab.key === 'SEMUA'
+              ? submissions.length
+              : submissions.filter((s) => s.status === tab.key).length;
+            const isActive = activeFilter === tab.key;
+            return (
+              <Pressable
+                key={tab.key}
+                style={[styles.filterTab, isActive && styles.filterTabActive]}
+                onPress={() => setActiveFilter(tab.key)}
+              >
+                <Text style={[styles.filterTabText, isActive && styles.filterTabTextActive]}>
+                  {tab.label}
                 </Text>
-              </View>
-            </Pressable>
-          );
-        })}
+                <View style={[styles.filterCount, isActive && styles.filterCountActive]}>
+                  <Text style={[styles.filterCountText, isActive && styles.filterCountTextActive]}>
+                    {count}
+                  </Text>
+                </View>
+              </Pressable>
+            );
+          })}
         </ScrollView>
       </View>
 
       {/* List */}
-      <ScrollView style={styles.listScroll} contentContainerStyle={styles.list} showsVerticalScrollIndicator={false}>
-        {filtered.length === 0 ? (
-          <View style={styles.empty}>
-            <MaterialIcons name="inbox" size={48} color={Colors.outlineVariant} />
-            <Text style={styles.emptyText}>Belum ada pengajuan</Text>
-          </View>
-        ) : (
-          filtered.map((sub) => {
-            const cat = getWasteCategory(sub.wasteType);
-            const status = STATUS_CONFIG[sub.status];
-            return (
-              <Pressable
-                key={sub.id}
-                style={({ pressed }) => [styles.card, pressed && styles.pressed]}
-              >
-                {/* Card Header */}
-                <View style={styles.cardHeader}>
-                  <View style={[styles.typeIcon, { backgroundColor: cat.bgColor }]}>
-                    <MaterialIcons name={cat.icon as any} size={22} color={cat.color} />
+      {loading ? (
+        <View style={styles.loadingBox}>
+          <ActivityIndicator size="large" color={Colors.primary} />
+        </View>
+      ) : (
+        <ScrollView
+          style={styles.listScroll}
+          contentContainerStyle={styles.list}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={() => loadSubmissions(true)} colors={[Colors.primary]} />
+          }
+        >
+          {filtered.length === 0 ? (
+            <View style={styles.empty}>
+              <MaterialIcons name="inbox" size={48} color={Colors.outlineVariant} />
+              <Text style={styles.emptyText}>Belum ada pengajuan</Text>
+            </View>
+          ) : (
+            filtered.map((sub) => {
+              const cat = getCategory(sub.wasteType);
+              const status = STATUS_CONFIG[sub.status];
+              const estimatedPoints = sub.actualWeight
+                ? Math.floor(sub.actualWeight * POINTS_PER_KG[sub.wasteType])
+                : null;
+              return (
+                <Pressable
+                  key={sub.id}
+                  style={({ pressed }) => [styles.card, pressed && styles.pressed]}
+                  onPress={() => router.push({ pathname: '/(user)/submission-detail', params: { id: sub.id } })}
+                >
+                  {/* Card Header */}
+                  <View style={styles.cardHeader}>
+                    <View style={[styles.typeIcon, { backgroundColor: cat.bgColor }]}>
+                      <MaterialIcons name={cat.icon as any} size={22} color={cat.color} />
+                    </View>
+                    <View style={styles.cardInfo}>
+                      <Text style={styles.cardId} numberOfLines={1}>#{sub.id.slice(0, 8)}</Text>
+                      <Text style={styles.cardDate}>{formatDate(sub.createdAt)}</Text>
+                    </View>
+                    <View style={[styles.statusBadge, { backgroundColor: status.bg }]}>
+                      <MaterialIcons name={status.icon} size={12} color={status.color} />
+                      <Text style={[styles.statusText, { color: status.color }]}>{status.label}</Text>
+                    </View>
                   </View>
-                  <View style={styles.cardInfo}>
-                    <Text style={styles.cardId} numberOfLines={1}>#{sub.id}</Text>
-                    <Text style={styles.cardDate}>{formatDate(sub.submittedAt)}</Text>
-                  </View>
-                  <View style={[styles.statusBadge, { backgroundColor: status.bg }]}>
-                    <MaterialIcons name={status.icon} size={12} color={status.color} />
-                    <Text style={[styles.statusText, { color: status.color }]}>{status.label}</Text>
-                  </View>
-                </View>
 
-                {/* Card Body */}
-                <View style={styles.cardBody}>
-                  <View style={styles.cardRow}>
-                    <Text style={styles.cardLabel}>Jenis Sampah</Text>
-                    <Text style={styles.cardValue}>{cat.label}</Text>
-                  </View>
-                  <View style={styles.cardRow}>
-                    <Text style={styles.cardLabel}>Estimasi Jumlah</Text>
-                    <Text style={styles.cardValue}>{sub.estimatedQty} item</Text>
-                  </View>
-                  <View style={styles.cardRow}>
-                    <Text style={styles.cardLabel}>Estimasi Berat</Text>
-                    <Text style={styles.cardValue}>{sub.estimatedWeight} kg</Text>
-                  </View>
-                  {sub.actualWeight !== undefined && (
+                  {/* Card Body */}
+                  <View style={styles.cardBody}>
                     <View style={styles.cardRow}>
-                      <Text style={styles.cardLabel}>Berat Aktual</Text>
-                      <Text style={styles.cardValue}>{sub.actualWeight} kg</Text>
+                      <Text style={styles.cardLabel}>Jenis Sampah</Text>
+                      <Text style={styles.cardValue}>{cat.label}</Text>
+                    </View>
+                    {sub.estimatedWeight !== undefined && sub.estimatedWeight !== null && (
+                      <View style={styles.cardRow}>
+                        <Text style={styles.cardLabel}>Estimasi Berat</Text>
+                        <Text style={styles.cardValue}>{sub.estimatedWeight} kg</Text>
+                      </View>
+                    )}
+                    {sub.actualWeight !== undefined && sub.actualWeight !== null && (
+                      <View style={styles.cardRow}>
+                        <Text style={styles.cardLabel}>Berat Aktual</Text>
+                        <Text style={styles.cardValue}>{sub.actualWeight} kg</Text>
+                      </View>
+                    )}
+                  </View>
+
+                  {/* Points or Rejection */}
+                  {sub.status === 'DISETUJUI' && estimatedPoints !== null && (
+                    <View style={styles.pointsRow}>
+                      <MaterialIcons name="stars" size={16} color={Colors.primary} />
+                      <Text style={styles.pointsText}>+{estimatedPoints} EcoPoints diperoleh</Text>
                     </View>
                   )}
-                </View>
-
-                {/* Points or Rejection */}
-                {sub.status === 'DISETUJUI' && sub.pointsEarned && (
-                  <View style={styles.pointsRow}>
-                    <MaterialIcons name="stars" size={16} color={Colors.primary} />
-                    <Text style={styles.pointsText}>+{sub.pointsEarned} EcoPoints diperoleh</Text>
-                  </View>
-                )}
-                {sub.status === 'DITOLAK' && sub.rejectionReason && (
-                  <View style={styles.rejectionRow}>
-                    <MaterialIcons name="info-outline" size={14} color={Colors.error} />
-                    <Text style={styles.rejectionText}>{sub.rejectionReason}</Text>
-                  </View>
-                )}
-              </Pressable>
-            );
-          })
-        )}
-        <View style={{ height: 16 }} />
-      </ScrollView>
+                  {sub.status === 'DITOLAK' && sub.notes && (
+                    <View style={styles.rejectionRow}>
+                      <MaterialIcons name="info-outline" size={14} color={Colors.error} />
+                      <Text style={styles.rejectionText}>{sub.notes}</Text>
+                    </View>
+                  )}
+                </Pressable>
+              );
+            })
+          )}
+          <View style={{ height: 16 }} />
+        </ScrollView>
+      )}
     </SafeAreaView>
   );
 }
@@ -182,6 +235,7 @@ const styles = StyleSheet.create({
   filterCountText: { fontFamily: 'Inter_600SemiBold', fontSize: 11, color: Colors.onSurfaceVariant },
   filterCountTextActive: { color: Colors.primary },
 
+  loadingBox: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   list: { paddingHorizontal: 20, gap: 12 },
 
   empty: { alignItems: 'center', justifyContent: 'center', paddingVertical: 60, gap: 12 },

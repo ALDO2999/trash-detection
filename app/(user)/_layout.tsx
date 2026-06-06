@@ -60,6 +60,12 @@ export default function UserLayout() {
         }}
       />
       <Tabs.Screen
+        name="submission-detail"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
         name="rewards"
         options={{
           title: 'Reward',

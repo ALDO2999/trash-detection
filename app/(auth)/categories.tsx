@@ -13,7 +13,6 @@ import { Colors } from '../../constants/colors';
 
 const CATEGORIES = [
   { id: 'plastic', label: 'Plastic', icon: 'water-drop' as const },
-  { id: 'paper', label: 'Paper', icon: 'description' as const },
   { id: 'cardboard', label: 'Cardboard', icon: 'inventory-2' as const },
   { id: 'metal', label: 'Metal', icon: 'hardware' as const },
   { id: 'battery', label: 'Battery', icon: 'battery-full' as const },
@@ -44,7 +43,7 @@ export default function CategoriesScreen() {
         >
           <MaterialIcons name="arrow-back" size={24} color={Colors.primary} />
         </Pressable>
-        <Text style={styles.headerTitle}>WasteSort AI</Text>
+        <Text style={styles.headerTitle}>EcoPoint</Text>
         <Pressable
           onPress={handleContinue}
           style={({ pressed }) => pressed && styles.pressed}

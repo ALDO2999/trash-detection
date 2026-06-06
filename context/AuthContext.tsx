@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import AuthService, { AuthUser, LoginPayload, RegisterPayload } from '../services/auth.service';
+import UserService from '../services/user.service';
 
 interface AuthContextType {
   user: AuthUser | null;
@@ -12,6 +13,7 @@ interface AuthContextType {
   resendOtp: (email: string) => Promise<void>;
   login: (payload: LoginPayload) => Promise<void>;
   logout: () => Promise<void>;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
@@ -63,6 +65,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  async function refreshUser() {
+    try {
+      const profile = await UserService.getProfile();
+      const updated: AuthUser = {
+        id: profile.id,
+        name: profile.name,
+        email: profile.email,
+        role: profile.role as AuthUser['role'],
+        pointBalance: profile.pointBalance,
+      };
+      setUser(updated);
+      await AsyncStorage.setItem('user', JSON.stringify(updated));
+    } catch {
+      // Diamkan — pertahankan data user yang tersimpan jika gagal
+    }
+  }
+
   async function logout() {
     try {
       const refreshToken = await AsyncStorage.getItem('refreshToken');
@@ -87,6 +106,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         resendOtp,
         login,
         logout,
+        refreshUser,
       }}
     >
       {children}

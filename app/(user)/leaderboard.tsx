@@ -1,25 +1,46 @@
-import { useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import {
-  Pressable,
+  ActivityIndicator,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors } from '../../constants/colors';
-import { MOCK_LEADERBOARD, LeaderboardEntry } from '../../constants/mockData';
+import UserService, { LeaderboardData, LeaderboardEntry } from '../../services/user.service';
 
-type Period = 'week' | 'all';
-type Scope = 'national' | 'city';
+interface DisplayEntry extends LeaderboardEntry {
+  avatarColor: string;
+  avatarInitials: string;
+}
 
-const SCOPES: { id: Scope; label: string; icon: any }[] = [
-  { id: 'national', label: 'Nasional', icon: 'public' },
-  { id: 'city', label: 'Kota (Jakarta)', icon: 'location-on' },
-];
+const AVATAR_COLORS = ['#2E7D32', '#1565C0', '#6A1B9A', '#BF360C', '#00695C', '#4527A0', '#E65100', '#AD1457'];
 
-function Avatar({ entry, size }: { entry: LeaderboardEntry; size: number }) {
+function getInitials(name: string) {
+  return name.split(' ').slice(0, 2).map((w) => w[0]).join('').toUpperCase();
+}
+
+function levelOf(points: number) {
+  if (points >= 3000) return 'Master Recycler';
+  if (points >= 1500) return 'Green Champion';
+  if (points >= 500) return 'Eco Warrior';
+  if (points >= 100) return 'Pejuang Hijau';
+  return 'Pemula';
+}
+
+function toDisplay(e: LeaderboardEntry): DisplayEntry {
+  return {
+    ...e,
+    avatarInitials: getInitials(e.name),
+    avatarColor: AVATAR_COLORS[(e.rank - 1) % AVATAR_COLORS.length],
+  };
+}
+
+function Avatar({ entry, size }: { entry: DisplayEntry; size: number }) {
   return (
     <View
       style={[
@@ -32,17 +53,41 @@ function Avatar({ entry, size }: { entry: LeaderboardEntry; size: number }) {
   );
 }
 
+function firstName(name: string) {
+  const parts = name.split(' ');
+  return `${parts[0]}${parts[1] ? ` ${parts[1][0]}.` : ''}`;
+}
+
+const formatPts = (pts: number) => (pts >= 1000 ? `${(pts / 1000).toFixed(1)}k` : `${pts}`);
+
 export default function LeaderboardScreen() {
-  const [period, setPeriod] = useState<Period>('week');
-  const [scope, setScope] = useState<Scope>('national');
+  const [data, setData] = useState<LeaderboardData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const hasLoaded = useRef(false);
 
-  const sorted = [...MOCK_LEADERBOARD].sort((a, b) => b.points - a.points);
-  const [first, second, third, ...rest] = sorted;
-  const currentUser = sorted.find((e) => e.isCurrentUser);
-  const currentRank = currentUser ? sorted.indexOf(currentUser) + 1 : 0;
+  const load = useCallback(async (isRefresh = false) => {
+    if (isRefresh) setRefreshing(true); else if (!hasLoaded.current) setLoading(true);
+    try {
+      const res = await UserService.getLeaderboard();
+      setData(res);
+      hasLoaded.current = true;
+    } catch {
+      // keep existing
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
 
-  const formatPts = (pts: number) =>
-    pts >= 1000 ? `${(pts / 1000).toFixed(1)}k` : `${pts}`;
+  useFocusEffect(useCallback(() => { load(); }, [load]));
+
+  const entries = (data?.entries ?? []).map(toDisplay);
+  const first = entries[0];
+  const second = entries[1];
+  const third = entries[2];
+  const rest = entries.slice(3);
+  const currentUser = data?.currentUser ?? null;
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -54,152 +99,124 @@ export default function LeaderboardScreen() {
         </View>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
-        {/* ── Period toggle ── */}
-        <View style={styles.toggleRow}>
-          <Pressable
-            style={[styles.toggleBtn, period === 'week' && styles.toggleBtnActive]}
-            onPress={() => setPeriod('week')}
-          >
-            <Text style={[styles.toggleText, period === 'week' && styles.toggleTextActive]}>
-              Minggu Ini
-            </Text>
-          </Pressable>
-          <Pressable
-            style={[styles.toggleBtn, period === 'all' && styles.toggleBtnActive]}
-            onPress={() => setPeriod('all')}
-          >
-            <Text style={[styles.toggleText, period === 'all' && styles.toggleTextActive]}>
-              Semua Waktu
-            </Text>
-          </Pressable>
+      {loading ? (
+        <View style={styles.loadingBox}>
+          <ActivityIndicator size="large" color={Colors.primary} />
         </View>
-
-        {/* ── Scope chips ── */}
+      ) : (
         <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.chipRow}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scroll}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={() => load(true)} colors={[Colors.primary]} />
+          }
         >
-          {SCOPES.map((s) => {
-            const active = scope === s.id;
-            return (
-              <Pressable
-                key={s.id}
-                style={[styles.chip, active && styles.chipActive]}
-                onPress={() => setScope(s.id)}
-              >
-                <MaterialIcons
-                  name={s.icon}
-                  size={14}
-                  color={active ? Colors.onPrimary : Colors.secondary}
-                />
-                <Text style={[styles.chipText, active && styles.chipTextActive]}>{s.label}</Text>
-              </Pressable>
-            );
-          })}
-        </ScrollView>
+          <Text style={styles.subtitle}>Peringkat berdasarkan total EcoPoints</Text>
 
-        {/* ── Podium ── */}
-        <View style={styles.podium}>
-          {/* 2nd */}
-          <View style={styles.podiumSide}>
-            <View style={styles.podiumAvatarWrap}>
-              <Avatar entry={second} size={64} />
-              <View style={[styles.rankPill, styles.rankSilver]}>
-                <Text style={styles.rankPillText}>2nd</Text>
-              </View>
+          {entries.length === 0 ? (
+            <View style={styles.emptyBox}>
+              <MaterialIcons name="emoji-events" size={48} color={Colors.outlineVariant} />
+              <Text style={styles.emptyText}>Belum ada peringkat. Jadilah yang pertama!</Text>
             </View>
-            <Text style={styles.podiumName} numberOfLines={1}>
-              {second.name.split(' ')[0]} {second.name.split(' ')[1]?.[0] ?? ''}.
-            </Text>
-            <Text style={styles.podiumPts}>{formatPts(second.points)}</Text>
-          </View>
-
-          {/* 1st */}
-          <View style={styles.podiumCenter}>
-            <MaterialIcons name="emoji-events" size={32} color={Colors.tertiaryFixedDim} />
-            <View style={styles.podiumAvatarWrap}>
-              <View style={styles.winnerRing}>
-                <Avatar entry={first} size={84} />
-              </View>
-              <View style={[styles.rankPill, styles.rankGold]}>
-                <Text style={styles.rankPillTextGold}>Winner</Text>
-              </View>
-            </View>
-            <Text style={styles.podiumNameWinner} numberOfLines={1}>
-              {first.name.split(' ')[0]} {first.name.split(' ')[1]?.[0] ?? ''}.
-            </Text>
-            <Text style={styles.podiumPtsWinner}>
-              {formatPts(first.points)}
-              <Text style={styles.podiumPtsUnit}> pts</Text>
-            </Text>
-          </View>
-
-          {/* 3rd */}
-          <View style={styles.podiumSide}>
-            <View style={styles.podiumAvatarWrap}>
-              <Avatar entry={third} size={64} />
-              <View style={[styles.rankPill, styles.rankBronze]}>
-                <Text style={styles.rankPillText}>3rd</Text>
-              </View>
-            </View>
-            <Text style={styles.podiumName} numberOfLines={1}>
-              {third.name.split(' ')[0]} {third.name.split(' ')[1]?.[0] ?? ''}.
-            </Text>
-            <Text style={styles.podiumPts}>{formatPts(third.points)}</Text>
-          </View>
-        </View>
-
-        {/* ── Global rank list ── */}
-        <Text style={styles.sectionTitle}>Peringkat Global</Text>
-        <View style={styles.list}>
-          {rest.map((entry, i) => {
-            const rank = i + 4;
-            return (
-              <View
-                key={entry.id}
-                style={[styles.listItem, entry.isCurrentUser && styles.listItemCurrent]}
-              >
-                <Text style={styles.listRank}>{rank}</Text>
-                <Avatar entry={entry} size={44} />
-                <View style={styles.listInfo}>
-                  <View style={styles.listNameRow}>
-                    <Text style={styles.listName} numberOfLines={1}>
-                      {entry.name}
-                    </Text>
-                    {rank === 4 && (
-                      <MaterialIcons name="military-tech" size={15} color={Colors.tertiaryFixedDim} />
-                    )}
-                    {entry.isCurrentUser && (
-                      <View style={styles.youBadge}>
-                        <Text style={styles.youBadgeText}>Kamu</Text>
+          ) : (
+            <>
+              {/* ── Podium ── */}
+              <View style={styles.podium}>
+                {/* 2nd */}
+                {second ? (
+                  <View style={styles.podiumSide}>
+                    <View style={styles.podiumAvatarWrap}>
+                      <Avatar entry={second} size={64} />
+                      <View style={[styles.rankPill, styles.rankSilver]}>
+                        <Text style={styles.rankPillText}>2nd</Text>
                       </View>
-                    )}
+                    </View>
+                    <Text style={styles.podiumName} numberOfLines={1}>{firstName(second.name)}</Text>
+                    <Text style={styles.podiumPts}>{formatPts(second.points)}</Text>
                   </View>
-                  <Text style={styles.listPts}>{entry.points.toLocaleString()} poin</Text>
-                </View>
-                <Text style={styles.listRankTag}>#{rank}</Text>
+                ) : <View style={styles.podiumSide} />}
+
+                {/* 1st */}
+                {first && (
+                  <View style={styles.podiumCenter}>
+                    <MaterialIcons name="emoji-events" size={32} color={Colors.tertiaryFixedDim} />
+                    <View style={styles.podiumAvatarWrap}>
+                      <View style={styles.winnerRing}>
+                        <Avatar entry={first} size={84} />
+                      </View>
+                      <View style={[styles.rankPill, styles.rankGold]}>
+                        <Text style={styles.rankPillTextGold}>Winner</Text>
+                      </View>
+                    </View>
+                    <Text style={styles.podiumNameWinner} numberOfLines={1}>{firstName(first.name)}</Text>
+                    <Text style={styles.podiumPtsWinner}>
+                      {formatPts(first.points)}
+                      <Text style={styles.podiumPtsUnit}> pts</Text>
+                    </Text>
+                  </View>
+                )}
+
+                {/* 3rd */}
+                {third ? (
+                  <View style={styles.podiumSide}>
+                    <View style={styles.podiumAvatarWrap}>
+                      <Avatar entry={third} size={64} />
+                      <View style={[styles.rankPill, styles.rankBronze]}>
+                        <Text style={styles.rankPillText}>3rd</Text>
+                      </View>
+                    </View>
+                    <Text style={styles.podiumName} numberOfLines={1}>{firstName(third.name)}</Text>
+                    <Text style={styles.podiumPts}>{formatPts(third.points)}</Text>
+                  </View>
+                ) : <View style={styles.podiumSide} />}
               </View>
-            );
-          })}
-        </View>
-      </ScrollView>
+
+              {/* ── Global rank list ── */}
+              {rest.length > 0 && (
+                <>
+                  <Text style={styles.sectionTitle}>Peringkat Global</Text>
+                  <View style={styles.list}>
+                    {rest.map((entry) => (
+                      <View
+                        key={entry.id}
+                        style={[styles.listItem, entry.isCurrentUser && styles.listItemCurrent]}
+                      >
+                        <Text style={styles.listRank}>{entry.rank}</Text>
+                        <Avatar entry={entry} size={44} />
+                        <View style={styles.listInfo}>
+                          <View style={styles.listNameRow}>
+                            <Text style={styles.listName} numberOfLines={1}>{entry.name}</Text>
+                            {entry.isCurrentUser && (
+                              <View style={styles.youBadge}>
+                                <Text style={styles.youBadgeText}>Kamu</Text>
+                              </View>
+                            )}
+                          </View>
+                          <Text style={styles.listPts}>{entry.points.toLocaleString()} poin</Text>
+                        </View>
+                        <Text style={styles.listRankTag}>#{entry.rank}</Text>
+                      </View>
+                    ))}
+                  </View>
+                </>
+              )}
+            </>
+          )}
+        </ScrollView>
+      )}
 
       {/* ── Sticky current-user footer ── */}
       {currentUser && (
         <View style={styles.footer}>
           <View style={styles.footerRank}>
-            <Text style={styles.footerRankNum}>{currentRank}</Text>
+            <Text style={styles.footerRankNum}>{currentUser.rank}</Text>
           </View>
           <View style={styles.footerAvatar}>
             <MaterialIcons name="recycling" size={22} color={Colors.onPrimary} />
           </View>
           <View style={styles.footerInfo}>
             <Text style={styles.footerLabel}>Peringkat Kamu</Text>
-            <Text style={styles.footerLevel}>
-              {currentUser.level} · Level 12
-            </Text>
+            <Text style={styles.footerLevel}>{levelOf(currentUser.points)}</Text>
           </View>
           <View style={styles.footerPtsWrap}>
             <Text style={styles.footerPts}>{currentUser.points.toLocaleString()}</Text>
@@ -223,31 +240,14 @@ const styles = StyleSheet.create({
   headerTitle: { fontFamily: 'PlusJakartaSans_700Bold', fontSize: 22, color: Colors.primary },
 
   scroll: { paddingBottom: 120 },
+  loadingBox: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  subtitle: {
+    fontFamily: 'Inter_400Regular', fontSize: 13, color: Colors.onSurfaceVariant,
+    paddingHorizontal: 20, marginBottom: 20,
+  },
 
-  // Period toggle
-  toggleRow: {
-    flexDirection: 'row', marginHorizontal: 20, marginBottom: 16,
-    backgroundColor: Colors.surfaceContainerHigh, borderRadius: 999, padding: 4,
-  },
-  toggleBtn: { flex: 1, height: 38, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
-  toggleBtnActive: {
-    backgroundColor: Colors.primary,
-    shadowColor: Colors.primary, shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25, shadowRadius: 4, elevation: 2,
-  },
-  toggleText: { fontFamily: 'Inter_600SemiBold', fontSize: 13, color: Colors.onSurfaceVariant },
-  toggleTextActive: { color: Colors.onPrimary },
-
-  // Scope chips
-  chipRow: { paddingHorizontal: 20, gap: 8, paddingBottom: 20 },
-  chip: {
-    flexDirection: 'row', alignItems: 'center', gap: 5,
-    paddingHorizontal: 14, height: 34, borderRadius: 999,
-    backgroundColor: Colors.secondaryContainer,
-  },
-  chipActive: { backgroundColor: Colors.secondary },
-  chipText: { fontFamily: 'Inter_600SemiBold', fontSize: 12, color: Colors.secondary },
-  chipTextActive: { color: Colors.onPrimary },
+  emptyBox: { alignItems: 'center', paddingVertical: 60, gap: 12, paddingHorizontal: 32 },
+  emptyText: { fontFamily: 'Inter_400Regular', fontSize: 14, color: Colors.outline, textAlign: 'center' },
 
   // Podium
   podium: {

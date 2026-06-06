@@ -1,4 +1,4 @@
-export type WasteType = 'Plastic' | 'Paper' | 'Cardboard' | 'Metal' | 'Battery' | 'Clothes' | 'Shoes';
+export type WasteType = 'Plastic' | 'Cardboard' | 'Metal' | 'Battery' | 'Clothes' | 'Shoes';
 
 export type SubmissionStatus = 'MENUNGGU_VERIFIKASI' | 'DISETUJUI' | 'DITOLAK';
 
@@ -66,7 +66,6 @@ export interface MockUser {
 
 export const WASTE_CATEGORIES: WasteCategory[] = [
   { id: 'Plastic',   label: 'Plastic',   pointsPerKg: 10, icon: 'water-drop',   color: '#2196F3', bgColor: '#E3F2FD' },
-  { id: 'Paper',     label: 'Paper',     pointsPerKg: 5,  icon: 'description',  color: '#FF9800', bgColor: '#FFF3E0' },
   { id: 'Cardboard', label: 'Cardboard', pointsPerKg: 8,  icon: 'inventory-2',  color: '#795548', bgColor: '#EFEBE9' },
   { id: 'Metal',     label: 'Metal',     pointsPerKg: 20, icon: 'hardware',     color: '#607D8B', bgColor: '#ECEFF1' },
   { id: 'Battery',   label: 'Battery',   pointsPerKg: 50, icon: 'battery-full', color: '#F44336', bgColor: '#FFEBEE' },
@@ -86,7 +85,6 @@ export const MODEL_CLASS_MAP: Record<string, WasteType> = {
   cardboard: 'Cardboard',
   metal_can: 'Metal',
   plastic_bottle: 'Plastic',
-  paper: 'Paper',
   shoes: 'Shoes',
   clothes: 'Clothes',
 };
@@ -97,7 +95,6 @@ export const MODEL_CLASSES = [
   'cardboard',
   'metal_can',
   'plastic_bottle',
-  'paper',
   'shoes',
   'clothes',
 ] as const;
@@ -107,7 +104,8 @@ export function mapModelClass(label: string): WasteType | null {
 }
 
 export function calcPoints(type: WasteType, weightKg: number): number {
-  return Math.round(getWasteCategory(type).pointsPerKg * weightKg);
+  // Selaras dengan backend (officer.service.ts) yang memakai Math.floor.
+  return Math.floor(getWasteCategory(type).pointsPerKg * weightKg);
 }
 
 // ─── Mock User ───────────────────────────────────────────────────────────────
@@ -170,17 +168,6 @@ export const MOCK_SUBMISSIONS: Submission[] = [
     status: 'MENUNGGU_VERIFIKASI',
   },
   {
-    id: 'WS-003',
-    wasteType: 'Paper',
-    estimatedQty: 10,
-    estimatedWeight: 3.0,
-    actualWeight: 2.8,
-    photoUri: '',
-    submittedAt: '2026-06-02T14:00:00Z',
-    status: 'DISETUJUI',
-    pointsEarned: 14,
-  },
-  {
     id: 'WS-004',
     wasteType: 'Battery',
     estimatedQty: 6,
@@ -206,7 +193,6 @@ export const MOCK_SUBMISSIONS: Submission[] = [
 
 export const MOCK_TRANSACTIONS: PointTransaction[] = [
   { id: 't1', type: 'earned',   points: 21,  description: 'Plastic 2.1kg',      date: '2026-06-03', submissionId: 'WS-001' },
-  { id: 't2', type: 'earned',   points: 14,  description: 'Paper 2.8kg',         date: '2026-06-02', submissionId: 'WS-003' },
   { id: 't3', type: 'redeemed', points: -100, description: 'Voucher Rp10.000',   date: '2026-05-30' },
   { id: 't4', type: 'earned',   points: 375, description: 'Clothes 2.5kg bonus', date: '2026-05-28', submissionId: 'WS-005' },
   { id: 't5', type: 'redeemed', points: -250, description: 'Voucher Rp25.000',   date: '2026-05-20' },
@@ -293,7 +279,6 @@ export const MOCK_LEADERBOARD: LeaderboardEntry[] = [
 
 export const MOCK_WASTE_STATS: { type: WasteType; totalKg: number }[] = [
   { type: 'Plastic',   totalKg: 25 },
-  { type: 'Paper',     totalKg: 12 },
   { type: 'Metal',     totalKg: 8  },
   { type: 'Cardboard', totalKg: 10 },
   { type: 'Battery',   totalKg: 2  },

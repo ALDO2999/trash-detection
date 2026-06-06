@@ -1,4 +1,11 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(del \"d:\\\\Personal\\\\project\\\\trash-detection\\\\app\\\\\\(officer\\)\\\\scan-qr.tsx\")",
+      "Bash(ls src/submissions)",
+      "Bash(ls src/submission)"
+    ]
+  },
   "enabledPlugins": {
     "expo@claude-plugins-official": true
   }

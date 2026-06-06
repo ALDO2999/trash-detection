@@ -1,84 +1,126 @@
+import { useCallback, useRef, useState } from 'react';
 import {
+  ActivityIndicator,
   Pressable,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors } from '../../constants/colors';
-import {
-  MOCK_OFFICER,
-  MOCK_OFFICER_QUEUE,
-  getWasteCategory,
-} from '../../constants/mockData';
+import { WASTE_CATEGORIES } from '../../constants/mockData';
+import { useAuth } from '../../context/AuthContext';
+import OfficerService, { OfficerDashboard as OfficerDashboardData, OfficerSubmission } from '../../services/officer.service';
+import { WasteType as ApiWasteType } from '../../services/scan.service';
+
+const API_TO_FRONTEND: Record<ApiWasteType, string> = {
+  PLASTIC: 'Plastic', CARDBOARD: 'Cardboard',
+  METAL: 'Metal', BATTERY: 'Battery', CLOTHES: 'Clothes', SHOES: 'Shoes',
+};
+
+function getInitials(name: string) {
+  return name.split(' ').slice(0, 2).map((w) => w[0]).join('').toUpperCase();
+}
 
 export default function OfficerDashboard() {
-  const officer = MOCK_OFFICER;
-  const pending = MOCK_OFFICER_QUEUE.filter((s) => s.status === 'MENUNGGU_VERIFIKASI').length;
-  const completed = 45;
-  const totalKg = 120;
-  const totalPoints = 2450;
+  const { user } = useAuth();
+  const [dashboard, setDashboard] = useState<OfficerDashboardData | null>(null);
+  const [queue, setQueue] = useState<OfficerSubmission[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const hasLoaded = useRef(false);
 
-  const recent = MOCK_OFFICER_QUEUE.slice(0, 4);
+  const loadData = useCallback(async (isRefresh = false) => {
+    if (isRefresh) setRefreshing(true); else if (!hasLoaded.current) setLoading(true);
+    try {
+      const [dash, pending] = await Promise.all([
+        OfficerService.getDashboard(),
+        OfficerService.getSubmissions('MENUNGGU_VERIFIKASI'),
+      ]);
+      setDashboard(dash);
+      setQueue(pending);
+      hasLoaded.current = true;
+    } catch {
+      // keep existing data on error
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
+
+  useFocusEffect(useCallback(() => { loadData(); }, [loadData]));
+
+  const initials = user ? getInitials(user.name) : '?';
+  const recent = queue.slice(0, 4);
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
-
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scroll}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={() => loadData(true)} colors={[Colors.primary]} />
+        }
+      >
         {/* Header */}
         <View style={styles.header}>
           <View>
             <Text style={styles.headerTitle}>Officer Portal</Text>
-            <Text style={styles.headerSubtitle}>
-              {officer.name} · Station #4421
-            </Text>
+            <Text style={styles.headerSubtitle}>{user?.name ?? '—'}</Text>
           </View>
           <View style={styles.officerAvatar}>
-            <Text style={styles.officerAvatarText}>{officer.avatarInitials}</Text>
+            <Text style={styles.officerAvatarText}>{initials}</Text>
           </View>
         </View>
 
         {/* Hero CTA */}
         <View style={styles.heroBanner}>
-          <View>
+          <View style={{ flex: 1 }}>
             <Text style={styles.heroTitle}>Siap Memverifikasi? 🌿</Text>
-            <Text style={styles.heroSubtitle}>{pending} pengajuan menunggu konfirmasi</Text>
+            <Text style={styles.heroSubtitle}>
+              {dashboard?.totalPending ?? '...'} pengajuan menunggu konfirmasi
+            </Text>
           </View>
           <Pressable
             style={({ pressed }) => [styles.scanQrBtn, pressed && styles.pressed]}
-            onPress={() => router.push('/(officer)/scan')}
+            onPress={() => router.push('/(officer)/submissions')}
           >
-            <MaterialIcons name="qr-code-scanner" size={20} color={Colors.onPrimary} />
-            <Text style={styles.scanQrBtnText}>Scan QR</Text>
+            <MaterialIcons name="assignment" size={20} color={Colors.onPrimary} />
+            <Text style={styles.scanQrBtnText}>Verifikasi</Text>
           </Pressable>
         </View>
 
         {/* Stats Bento */}
-        <View style={styles.bentoGrid}>
-          <View style={[styles.bentoCard, styles.bentoPending]}>
-            <MaterialIcons name="hourglass-empty" size={24} color={Colors.tertiary} />
-            <Text style={styles.bentoValue}>{pending}</Text>
-            <Text style={styles.bentoLabel}>Menunggu</Text>
+        {loading ? (
+          <ActivityIndicator color={Colors.primary} style={{ marginBottom: 16 }} />
+        ) : (
+          <View style={styles.bentoGrid}>
+            <View style={[styles.bentoCard, styles.bentoPending]}>
+              <MaterialIcons name="hourglass-empty" size={24} color={Colors.tertiary} />
+              <Text style={styles.bentoValue}>{dashboard?.totalPending ?? 0}</Text>
+              <Text style={styles.bentoLabel}>Menunggu</Text>
+            </View>
+            <View style={[styles.bentoCard, styles.bentoCompleted]}>
+              <MaterialIcons name="check-circle" size={24} color={Colors.primary} />
+              <Text style={styles.bentoValue}>{dashboard?.totalApproved ?? 0}</Text>
+              <Text style={styles.bentoLabel}>Disetujui</Text>
+            </View>
+            <View style={[styles.bentoCard, styles.bentoWeight]}>
+              <MaterialIcons name="scale" size={24} color={Colors.secondary} />
+              <Text style={styles.bentoValue}>{dashboard?.totalWeightKg ?? 0} kg</Text>
+              <Text style={styles.bentoLabel}>Total Berat</Text>
+            </View>
+            <View style={[styles.bentoCard, styles.bentoPoints]}>
+              <MaterialIcons name="stars" size={24} color={Colors.tertiaryFixedDim} />
+              <Text style={styles.bentoValue}>{(dashboard?.totalPointsGiven ?? 0).toLocaleString()}</Text>
+              <Text style={styles.bentoLabel}>Poin Diberikan</Text>
+            </View>
           </View>
-          <View style={[styles.bentoCard, styles.bentoCompleted]}>
-            <MaterialIcons name="check-circle" size={24} color={Colors.primary} />
-            <Text style={styles.bentoValue}>{completed}</Text>
-            <Text style={styles.bentoLabel}>Selesai Hari Ini</Text>
-          </View>
-          <View style={[styles.bentoCard, styles.bentoWeight]}>
-            <MaterialIcons name="scale" size={24} color={Colors.secondary} />
-            <Text style={styles.bentoValue}>{totalKg} kg</Text>
-            <Text style={styles.bentoLabel}>Total Berat</Text>
-          </View>
-          <View style={[styles.bentoCard, styles.bentoPoints]}>
-            <MaterialIcons name="stars" size={24} color={Colors.tertiaryFixedDim} />
-            <Text style={styles.bentoValue}>{totalPoints.toLocaleString()}</Text>
-            <Text style={styles.bentoLabel}>Poin Diberikan</Text>
-          </View>
-        </View>
+        )}
 
         {/* System Status */}
         <View style={styles.statusCard}>
@@ -86,10 +128,10 @@ export default function OfficerDashboard() {
             <View style={styles.statusDot} />
             <Text style={styles.statusText}>AI Detection System Online</Text>
           </View>
-          <Text style={styles.statusSub}>Model aktif · Terakhir update: 2026-06-04</Text>
+          <Text style={styles.statusSub}>Model aktif · EcoPoint v1.0</Text>
         </View>
 
-        {/* Recent Submissions Queue */}
+        {/* Recent Pending Queue */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Antrian Pengajuan</Text>
@@ -97,32 +139,43 @@ export default function OfficerDashboard() {
               <Text style={styles.seeAll}>Lihat Semua</Text>
             </Pressable>
           </View>
-          <View style={styles.queueList}>
-            {recent.map((sub) => {
-              const cat = getWasteCategory(sub.wasteType);
-              return (
-                <Pressable
-                  key={sub.id}
-                  style={({ pressed }) => [styles.queueCard, pressed && styles.pressed]}
-                  onPress={() => router.push(`/(officer)/submissions`)}
-                >
-                  <View style={[styles.queueIcon, { backgroundColor: cat.bgColor }]}>
-                    <MaterialIcons name={cat.icon as any} size={20} color={cat.color} />
-                  </View>
-                  <View style={styles.queueInfo}>
-                    <Text style={styles.queueId}>#{sub.id}</Text>
-                    <Text style={styles.queueMeta}>
-                      {cat.label} · {sub.estimatedWeight} kg
-                    </Text>
-                  </View>
-                  <View style={styles.pendingBadge}>
-                    <Text style={styles.pendingBadgeText}>Menunggu</Text>
-                  </View>
-                  <MaterialIcons name="chevron-right" size={18} color={Colors.outline} />
-                </Pressable>
-              );
-            })}
-          </View>
+
+          {loading ? (
+            <ActivityIndicator color={Colors.primary} />
+          ) : recent.length === 0 ? (
+            <View style={styles.emptyQueue}>
+              <MaterialIcons name="check-circle" size={36} color={Colors.primary} />
+              <Text style={styles.emptyQueueText}>Semua pengajuan sudah ditangani</Text>
+            </View>
+          ) : (
+            <View style={styles.queueList}>
+              {recent.map((sub) => {
+                const frontendType = API_TO_FRONTEND[sub.wasteType];
+                const cat = WASTE_CATEGORIES.find((c) => c.id === frontendType) ?? WASTE_CATEGORIES[0];
+                return (
+                  <Pressable
+                    key={sub.id}
+                    style={({ pressed }) => [styles.queueCard, pressed && styles.pressed]}
+                    onPress={() => router.push('/(officer)/submissions')}
+                  >
+                    <View style={[styles.queueIcon, { backgroundColor: cat.bgColor }]}>
+                      <MaterialIcons name={cat.icon as any} size={20} color={cat.color} />
+                    </View>
+                    <View style={styles.queueInfo}>
+                      <Text style={styles.queueId}>#{sub.id.slice(0, 8)}</Text>
+                      <Text style={styles.queueMeta}>
+                        {cat.label}{sub.estimatedWeight ? ` · ${sub.estimatedWeight} kg` : ''} · {sub.user.name}
+                      </Text>
+                    </View>
+                    <View style={styles.pendingBadge}>
+                      <Text style={styles.pendingBadgeText}>Menunggu</Text>
+                    </View>
+                    <MaterialIcons name="chevron-right" size={18} color={Colors.outline} />
+                  </Pressable>
+                );
+              })}
+            </View>
+          )}
         </View>
 
         <View style={{ height: 16 }} />
@@ -152,7 +205,7 @@ const styles = StyleSheet.create({
   heroBanner: {
     marginHorizontal: 20, marginBottom: 20,
     backgroundColor: Colors.primary, borderRadius: 20, padding: 20,
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12,
   },
   heroTitle: { fontFamily: 'PlusJakartaSans_700Bold', fontSize: 18, color: Colors.onPrimary },
   heroSubtitle: { fontFamily: 'Inter_400Regular', fontSize: 13, color: `${Colors.onPrimary}CC`, marginTop: 4 },
@@ -163,13 +216,9 @@ const styles = StyleSheet.create({
   },
   scanQrBtnText: { fontFamily: 'Inter_600SemiBold', fontSize: 14, color: Colors.primary },
 
-  bentoGrid: {
-    flexDirection: 'row', flexWrap: 'wrap', gap: 12,
-    paddingHorizontal: 20, marginBottom: 16,
-  },
+  bentoGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, paddingHorizontal: 20, marginBottom: 16 },
   bentoCard: {
-    width: '47%', borderRadius: 16, padding: 16, gap: 6,
-    alignItems: 'flex-start',
+    width: '47%', borderRadius: 16, padding: 16, gap: 6, alignItems: 'flex-start',
     borderWidth: 1, borderColor: Colors.surfaceContainerHigh,
   },
   bentoPending: { backgroundColor: `${Colors.tertiaryFixedDim}18` },
@@ -195,6 +244,9 @@ const styles = StyleSheet.create({
   sectionTitle: { fontFamily: 'PlusJakartaSans_700Bold', fontSize: 16, color: Colors.onSurface },
   seeAll: { fontFamily: 'Inter_600SemiBold', fontSize: 13, color: Colors.primary },
 
+  emptyQueue: { alignItems: 'center', paddingVertical: 28, gap: 10 },
+  emptyQueueText: { fontFamily: 'Inter_400Regular', fontSize: 14, color: Colors.onSurfaceVariant },
+
   queueList: { gap: 10 },
   queueCard: {
     flexDirection: 'row', alignItems: 'center', gap: 12,
@@ -207,8 +259,7 @@ const styles = StyleSheet.create({
   queueId: { fontFamily: 'Inter_600SemiBold', fontSize: 14, color: Colors.onSurface },
   queueMeta: { fontFamily: 'Inter_400Regular', fontSize: 12, color: Colors.onSurfaceVariant, marginTop: 2 },
   pendingBadge: {
-    backgroundColor: `${Colors.tertiaryFixedDim}33`, borderRadius: 999,
-    paddingHorizontal: 10, paddingVertical: 3,
+    backgroundColor: `${Colors.tertiaryFixedDim}33`, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 3,
   },
   pendingBadgeText: { fontFamily: 'Inter_600SemiBold', fontSize: 11, color: Colors.tertiary },
 });
