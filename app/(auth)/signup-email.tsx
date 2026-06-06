@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import {
+  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -13,8 +14,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors } from '../../constants/colors';
+import { useAuth } from '../../context/AuthContext';
+import { getApiErrorMessage } from '../../hooks/useApiError';
 
 export default function SignupEmailScreen() {
+  const { register } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -30,13 +34,17 @@ export default function SignupEmailScreen() {
     email.includes('.') &&
     password.length >= 8;
 
-  const handleSubmit = () => {
-    if (!isValid) return;
+  const handleSubmit = async () => {
+    if (!isValid || loading) return;
     setLoading(true);
-    setTimeout(() => {
+    try {
+      await register({ name: name.trim(), email, password });
+      router.push({ pathname: '/(auth)/otp', params: { email } });
+    } catch (err) {
+      Alert.alert('Pendaftaran Gagal', getApiErrorMessage(err));
+    } finally {
       setLoading(false);
-      router.push('/(auth)/otp');
-    }, 1000);
+    }
   };
 
   return (

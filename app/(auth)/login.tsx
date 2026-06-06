@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import {
+  Alert,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -14,15 +15,31 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors } from '../../constants/colors';
+import { useAuth } from '../../context/AuthContext';
+import { getApiErrorMessage } from '../../hooks/useApiError';
 
 export default function LoginScreen() {
+  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [emailFocused, setEmailFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const isValid = email.includes('@') && password.length >= 6;
+
+  const handleLogin = async () => {
+    if (!isValid || loading) return;
+    setLoading(true);
+    try {
+      await login({ email, password });
+    } catch (err) {
+      Alert.alert('Login Gagal', getApiErrorMessage(err));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -111,7 +128,7 @@ export default function LoginScreen() {
                   onFocus={() => setPasswordFocused(true)}
                   onBlur={() => setPasswordFocused(false)}
                   returnKeyType="done"
-                  onSubmitEditing={() => isValid && router.replace('/(user)')}
+                  onSubmitEditing={handleLogin}
                 />
                 <Pressable onPress={() => setShowPassword(!showPassword)}>
                   <MaterialIcons
@@ -127,13 +144,13 @@ export default function LoginScreen() {
             <Pressable
               style={({ pressed }) => [
                 styles.submitButton,
-                !isValid && styles.submitDisabled,
+                (!isValid || loading) && styles.submitDisabled,
                 pressed && isValid && styles.buttonPressed,
               ]}
-              onPress={() => router.replace('/(user)')}
-              disabled={!isValid}
+              onPress={handleLogin}
+              disabled={!isValid || loading}
             >
-              <Text style={styles.submitText}>Masuk</Text>
+              <Text style={styles.submitText}>{loading ? 'Memproses...' : 'Masuk'}</Text>
               <MaterialIcons name="login" size={20} color={Colors.onPrimary} />
             </Pressable>
           </View>

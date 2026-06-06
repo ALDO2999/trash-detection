@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import {
+  Alert,
   Pressable,
   StyleSheet,
   Text,
@@ -7,17 +8,22 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors } from '../../constants/colors';
+import { useAuth } from '../../context/AuthContext';
+import { getApiErrorMessage } from '../../hooks/useApiError';
 
 const OTP_LENGTH = 6;
 const RESEND_SECONDS = 60;
 
 export default function OtpScreen() {
+  const { email } = useLocalSearchParams<{ email: string }>();
+  const { verifyOtp, resendOtp } = useAuth();
   const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(''));
   const [focusedIndex, setFocusedIndex] = useState(0);
   const [countdown, setCountdown] = useState(RESEND_SECONDS);
+  const [loading, setLoading] = useState(false);
   const inputRefs = useRef<(TextInput | null)[]>([]);
 
   useEffect(() => {
@@ -45,17 +51,32 @@ export default function OtpScreen() {
     }
   };
 
-  const handleVerify = () => {
+  const handleVerify = async () => {
     const code = otp.join('');
-    if (code.length === OTP_LENGTH) {
-      router.replace('/(auth)/profile-setup');
+    if (code.length !== OTP_LENGTH || loading) return;
+    setLoading(true);
+    try {
+      await verifyOtp(email, code);
+      Alert.alert('Berhasil', 'Akun berhasil diverifikasi! Silakan login.', [
+        { text: 'Login', onPress: () => router.replace('/(auth)/login') },
+      ]);
+    } catch (err) {
+      Alert.alert('Verifikasi Gagal', getApiErrorMessage(err));
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleResend = () => {
-    setOtp(Array(OTP_LENGTH).fill(''));
-    setCountdown(RESEND_SECONDS);
-    inputRefs.current[0]?.focus();
+  const handleResend = async () => {
+    try {
+      await resendOtp(email);
+      setOtp(Array(OTP_LENGTH).fill(''));
+      setCountdown(RESEND_SECONDS);
+      inputRefs.current[0]?.focus();
+      Alert.alert('OTP Dikirim', 'Kode OTP baru telah dikirim ke email Anda.');
+    } catch (err) {
+      Alert.alert('Gagal', getApiErrorMessage(err));
+    }
   };
 
   const isComplete = otp.every((d) => d !== '');
@@ -128,12 +149,13 @@ export default function OtpScreen() {
         <Pressable
           style={({ pressed }) => [
             styles.verifyButton,
-            !isComplete && styles.verifyDisabled,
+            (!isComplete || loading) && styles.verifyDisabled,
             pressed && styles.pressed,
           ]}
           onPress={handleVerify}
+          disabled={!isComplete || loading}
         >
-          <Text style={styles.verifyText}>Verifikasi</Text>
+          <Text style={styles.verifyText}>{loading ? 'Memverifikasi...' : 'Verifikasi'}</Text>
           <MaterialIcons name="arrow-forward" size={20} color={Colors.onPrimary} />
         </Pressable>
 

@@ -14,6 +14,7 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { View, ActivityIndicator } from 'react-native';
 import { Colors } from '../constants/colors';
+import { AuthProvider } from '../context/AuthContext';
 
 export default function RootLayout() {
   const [loaded] = useFonts({
@@ -35,7 +36,7 @@ export default function RootLayout() {
   }
 
   return (
-    <>
+    <AuthProvider>
       <StatusBar style="dark" />
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" />
@@ -45,6 +46,6 @@ export default function RootLayout() {
         <Stack.Screen name="(officer)" />
         <Stack.Screen name="(settings)" />
       </Stack>
-    </>
+    </AuthProvider>
   );
 }
