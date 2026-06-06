@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>WasteSort AI - Camera Interface</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container-highest": "#e1e3e4",
+                      "primary-container": "#2e7d32",
+                      "on-surface-variant": "#40493d",
+                      "surface-dim": "#d9dadb",
+                      "on-secondary-container": "#795548",
+                      "on-primary-fixed-variant": "#005312",
+                      "on-primary": "#ffffff",
+                      "surface-container-high": "#e7e8e9",
+                      "on-secondary": "#ffffff",
+                      "on-tertiary-container": "#ffefd6",
+                      "surface-container": "#edeeef",
+                      "on-tertiary-fixed": "#261a00",
+                      "secondary-container": "#fdcdbc",
+                      "on-secondary-fixed-variant": "#603f33",
+                      "secondary": "#7a5649",
+                      "primary-fixed": "#a3f69c",
+                      "outline-variant": "#bfcaba",
+                      "primary": "#0d631b",
+                      "surface-bright": "#f8f9fa",
+                      "on-background": "#191c1d",
+                      "on-surface": "#191c1d",
+                      "secondary-fixed": "#ffdbcf",
+                      "tertiary-fixed": "#ffdf9e",
+                      "error": "#ba1a1a",
+                      "surface": "#f8f9fa",
+                      "inverse-on-surface": "#f0f1f2",
+                      "tertiary-fixed-dim": "#fabd00",
+                      "primary-fixed-dim": "#88d982",
+                      "surface-variant": "#e1e3e4",
+                      "on-tertiary-fixed-variant": "#5b4300",
+                      "outline": "#707a6c",
+                      "tertiary": "#6d5100",
+                      "secondary-fixed-dim": "#ebbcac",
+                      "on-tertiary": "#ffffff",
+                      "on-primary-fixed": "#002204",
+                      "background": "#f8f9fa",
+                      "surface-tint": "#1b6d24",
+                      "inverse-surface": "#2e3132",
+                      "on-error": "#ffffff",
+                      "surface-container-low": "#f3f4f5",
+                      "error-container": "#ffdad6",
+                      "on-secondary-fixed": "#2e150b",
+                      "on-primary-container": "#cbffc2",
+                      "tertiary-container": "#8c6800",
+                      "surface-container-lowest": "#ffffff",
+                      "inverse-primary": "#88d982",
+                      "on-error-container": "#93000a"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xs": "4px",
+                      "base": "8px",
+                      "xl": "64px",
+                      "max-width": "1200px",
+                      "margin-mobile": "20px",
+                      "lg": "40px",
+                      "sm": "12px",
+                      "gutter": "16px",
+                      "margin-desktop": "auto",
+                      "md": "24px"
+              },
+              "fontFamily": {
+                      "body-lg": ["Inter"],
+                      "label-sm": ["Inter"],
+                      "label-md": ["Inter"],
+                      "body-md": ["Inter"],
+                      "headline-lg": ["Plus Jakarta Sans"],
+                      "headline-lg-mobile": ["Plus Jakarta Sans"],
+                      "headline-md": ["Plus Jakarta Sans"],
+                      "display-lg": ["Plus Jakarta Sans"]
+              },
+              "fontSize": {
+                      "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                      "label-sm": ["12px", {"lineHeight": "1.2", "fontWeight": "500"}],
+                      "label-md": ["14px", {"lineHeight": "1.2", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                      "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                      "headline-lg": ["32px", {"lineHeight": "1.3", "fontWeight": "700"}],
+                      "headline-lg-mobile": ["28px", {"lineHeight": "1.3", "fontWeight": "700"}],
+                      "headline-md": ["24px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                      "display-lg": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        .camera-vignette {
+            background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.4) 100%);
+        }
+        .scanning-line {
+            height: 2px;
+            background: #a3f69c;
+            box-shadow: 0 0 15px #2e7d32;
+            animation: scan 3s linear infinite;
+        }
+        @keyframes scan {
+            0% { top: 0%; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+        .pulse-shutter {
+            animation: pulse-shutter 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse-shutter {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.9; }
+        }
+        .glass-blur {
+            backdrop-filter: blur(12px);
+            background: rgba(25, 28, 29, 0.6);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-on-background text-on-primary overflow-hidden h-screen w-screen flex flex-col font-body-md">
+<!-- Viewfinder Layer -->
+<div class="fixed inset-0 z-0">
+<img class="w-full h-full object-cover" data-alt="A first-person perspective of a camera viewfinder aimed at a clean wooden kitchen countertop where a single plastic water bottle and a crumpled newspaper are placed. The lighting is bright and natural from a nearby window, creating a crisp, modern corporate aesthetic. The overall mood is focused and ecologically responsible, with a shallow depth of field highlighting the recyclable materials." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2EhIAZZ_CQ60VNq--4GfpMHCG3GbkpmOQqGFmSR6cUcngQwGHJ9ptDUc6BG-Z17FUUn4bZRJQzGPn5i2_eKuTyW9e8jywaPeGE2qb6CiMxbr0hFTbfvRxnaJ7brnxf51az8ZesP65Bir6mg7zG1Gk3A_f5uaMPA9H2n5iMPUKImNfBSpIoYg7nVmYnbOHYoFyrcu-1xQ0M5kOnUTqDDjWIjWWesxRaKwtVH0VQTASp_W5G0BfYIexbTTJQbFWGk9_XFQ3kisPZQif"/>
+<div class="absolute inset-0 camera-vignette"></div>
+</div>
+<!-- UI Overlay Layer -->
+<div class="relative z-10 flex flex-col h-full justify-between">
+<!-- Top Control Bar -->
+<header class="flex items-center justify-between px-margin-mobile py-lg w-full max-w-max-width mx-auto">
+<button aria-label="Close" class="w-12 h-12 flex items-center justify-center rounded-full glass-blur text-white active:scale-95 transition-transform">
+<span class="material-symbols-outlined">close</span>
+</button>
+<div class="flex items-center gap-base">
+<button class="w-12 h-12 flex items-center justify-center rounded-full glass-blur text-white active:scale-95 transition-transform" id="flash-toggle">
+<span class="material-symbols-outlined">flash_off</span>
+</button>
+<div class="glass-blur px-md py-sm rounded-full flex items-center gap-xs">
+<div class="w-2 h-2 rounded-full bg-primary-fixed animate-pulse"></div>
+<span class="font-label-md text-label-md tracking-wider">AI READY</span>
+</div>
+</div>
+<button aria-label="Settings" class="w-12 h-12 flex items-center justify-center rounded-full glass-blur text-white active:scale-95 transition-transform">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</header>
+<!-- Scanning Frame -->
+<main class="flex-grow flex flex-col items-center justify-center relative">
+<div class="relative w-[280px] h-[280px] md:w-[400px] md:h-[400px] pointer-events-none">
+<!-- Corner Borders -->
+<div class="absolute top-0 left-0 w-12 h-12 border-t-4 border-l-4 border-primary-fixed rounded-tl-xl"></div>
+<div class="absolute top-0 right-0 w-12 h-12 border-t-4 border-r-4 border-primary-fixed rounded-tr-xl"></div>
+<div class="absolute bottom-0 left-0 w-12 h-12 border-b-4 border-l-4 border-primary-fixed rounded-bl-xl"></div>
+<div class="absolute bottom-0 right-0 w-12 h-12 border-b-4 border-r-4 border-primary-fixed rounded-br-xl"></div>
+<!-- Center Guide / Scanning Animation -->
+<div class="absolute inset-4 border border-white/20 rounded-lg overflow-hidden">
+<div class="scanning-line absolute w-full top-0"></div>
+</div>
+<!-- Guidance Tooltip -->
+<div class="absolute -bottom-16 left-1/2 -translate-x-1/2 whitespace-nowrap bg-on-background/80 px-md py-base rounded-full border border-white/10 shadow-lg">
+<p class="font-label-md text-label-md text-primary-fixed-dim">Align waste within frame</p>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation & Controls -->
+<footer class="w-full pb-xl px-margin-mobile flex flex-col items-center gap-lg">
+<div class="flex items-center justify-between w-full max-w-md">
+<!-- Gallery Button -->
+<button class="group flex flex-col items-center gap-xs">
+<div class="w-14 h-14 rounded-xl overflow-hidden border-2 border-white/30 group-hover:border-primary-fixed transition-colors">
+<img class="w-full h-full object-cover" data-alt="A small, soft-focus preview image of a recycling bin filled with various colored glass bottles. The lighting is soft and even, maintaining the professional and clean aesthetic of the main UI. The focus is on the glass material, emphasizing sorting and environmental responsibility." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDwJHIMKOYa4aBBgqQt7XJXSKLY7N5rQWPC4QCN6qfC59gw5YiCo7a5EQMa6xvmGfoxAq1HNz-zQ4sB5igVyn59lNsAjss8v0I8VMemZsdae_sidLmRhaSwAp43zyEzpNZqP2x63Fy7KvYO07dkpeN9H_Y7c5Jg_d2s5dEjsZDDtPwanF6DJnhkj8IPzbAoKGaeHN6N4WbARE0tIsMGb7Q4y4ZA_uS3MO0x2YLQpXbFDpZcOXQJuoUhmi36GFPVsBKfiS0WzNxwUXL3"/>
+</div>
+<span class="font-label-sm text-label-sm text-white/70">Gallery</span>
+</button>
+<!-- Shutter Button -->
+<div class="relative flex items-center justify-center">
+<div class="absolute w-24 h-24 rounded-full border-2 border-white/20"></div>
+<button class="relative w-20 h-20 rounded-full bg-white flex items-center justify-center pulse-shutter active:scale-90 transition-all duration-200 shadow-xl overflow-hidden" id="shutter">
+<div class="absolute inset-0 bg-primary-container opacity-0 hover:opacity-10 transition-opacity"></div>
+<div class="w-16 h-16 rounded-full border-4 border-on-background/5"></div>
+</button>
+</div>
+<!-- Scan Guide Toggle -->
+<button class="group flex flex-col items-center gap-xs text-white/70 hover:text-primary-fixed transition-colors" id="guide-toggle">
+<div class="w-14 h-14 rounded-full glass-blur flex items-center justify-center border-2 border-white/10 group-hover:border-primary-fixed/50">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">info</span>
+</div>
+<span class="font-label-sm text-label-sm">Guide</span>
+</button>
+</div>
+<!-- Material Categories Quick Nav -->
+<div class="flex gap-sm overflow-x-auto no-scrollbar max-w-full px-base py-sm">
+<span class="px-md py-base bg-surface-container-highest/20 rounded-full border border-white/10 text-white font-label-md text-label-md backdrop-blur-sm whitespace-nowrap">Plastic</span>
+<span class="px-md py-base bg-primary-container/40 rounded-full border border-primary-fixed/30 text-primary-fixed font-label-md text-label-md backdrop-blur-sm whitespace-nowrap">Auto-Detect</span>
+<span class="px-md py-base bg-surface-container-highest/20 rounded-full border border-white/10 text-white font-label-md text-label-md backdrop-blur-sm whitespace-nowrap">Paper</span>
+<span class="px-md py-base bg-surface-container-highest/20 rounded-full border border-white/10 text-white font-label-md text-label-md backdrop-blur-sm whitespace-nowrap">Metal</span>
+</div>
+</footer>
+</div>
+<!-- Interactive Layer: JavaScript for micro-interactions -->
+<script>
+        // Flash Toggle
+        const flashBtn = document.getElementById('flash-toggle');
+        let flashOn = false;
+        flashBtn.addEventListener('click', () => {
+            flashOn = !flashOn;
+            const icon = flashBtn.querySelector('.material-symbols-outlined');
+            icon.textContent = flashOn ? 'flash_on' : 'flash_off';
+            flashBtn.classList.toggle('bg-primary-fixed', flashOn);
+            flashBtn.classList.toggle('text-on-primary-fixed', flashOn);
+        });
+
+        // Shutter Effect
+        const shutterBtn = document.getElementById('shutter');
+        shutterBtn.addEventListener('click', () => {
+            // Flash visual feedback
+            const flashOverlay = document.createElement('div');
+            flashOverlay.className = 'fixed inset-0 bg-white z-[100] transition-opacity duration-300';
+            document.body.appendChild(flashOverlay);
+            
+            setTimeout(() => {
+                flashOverlay.style.opacity = '0';
+                setTimeout(() => flashOverlay.remove(), 300);
+            }, 50);
+
+            // Shutter sound or haptic feedback simulation
+            if ('vibrate' in navigator) {
+                navigator.vibrate(50);
+            }
+        });
+
+        // Simple Scan Guide Interaction
+        const guideToggle = document.getElementById('guide-toggle');
+        guideToggle.addEventListener('click', () => {
+            const icon = guideToggle.querySelector('.material-symbols-outlined');
+            const isFilled = icon.style.fontVariationSettings.includes("'FILL' 1");
+            icon.style.fontVariationSettings = isFilled ? "'FILL' 0" : "'FILL' 1";
+            guideToggle.classList.toggle('text-primary-fixed');
+        });
+    </script>
+<style>
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        /* Hide scrollbar for IE, Edge and Firefox */
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+    </style>
+</body></html>

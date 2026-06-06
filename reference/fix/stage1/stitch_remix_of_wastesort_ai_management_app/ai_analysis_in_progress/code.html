@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EcoScan AI - Analysis</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-highest": "#e1e3e4",
+                    "primary-container": "#2e7d32",
+                    "on-surface-variant": "#40493d",
+                    "surface-dim": "#d9dadb",
+                    "on-secondary-container": "#795548",
+                    "on-primary-fixed-variant": "#005312",
+                    "on-primary": "#ffffff",
+                    "surface-container-high": "#e7e8e9",
+                    "on-secondary": "#ffffff",
+                    "on-tertiary-container": "#ffefd6",
+                    "surface-container": "#edeeef",
+                    "on-tertiary-fixed": "#261a00",
+                    "secondary-container": "#fdcdbc",
+                    "on-secondary-fixed-variant": "#603f33",
+                    "secondary": "#7a5649",
+                    "primary-fixed": "#a3f69c",
+                    "outline-variant": "#bfcaba",
+                    "primary": "#0d631b",
+                    "surface-bright": "#f8f9fa",
+                    "on-background": "#191c1d",
+                    "on-surface": "#191c1d",
+                    "secondary-fixed": "#ffdbcf",
+                    "tertiary-fixed": "#ffdf9e",
+                    "error": "#ba1a1a",
+                    "surface": "#f8f9fa",
+                    "inverse-on-surface": "#f0f1f2",
+                    "tertiary-fixed-dim": "#fabd00",
+                    "primary-fixed-dim": "#88d982",
+                    "surface-variant": "#e1e3e4",
+                    "on-tertiary-fixed-variant": "#5b4300",
+                    "outline": "#707a6c",
+                    "tertiary": "#6d5100",
+                    "secondary-fixed-dim": "#ebbcac",
+                    "on-tertiary": "#ffffff",
+                    "on-primary-fixed": "#002204",
+                    "background": "#f8f9fa",
+                    "surface-tint": "#1b6d24",
+                    "inverse-surface": "#2e3132",
+                    "on-error": "#ffffff",
+                    "surface-container-low": "#f3f4f5",
+                    "error-container": "#ffdad6",
+                    "on-secondary-fixed": "#2e150b",
+                    "on-primary-container": "#cbffc2",
+                    "tertiary-container": "#8c6800",
+                    "surface-container-lowest": "#ffffff",
+                    "inverse-primary": "#88d982",
+                    "on-error-container": "#93000a"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xs": "4px",
+                    "base": "8px",
+                    "xl": "64px",
+                    "max-width": "1200px",
+                    "margin-mobile": "20px",
+                    "lg": "40px",
+                    "sm": "12px",
+                    "gutter": "16px",
+                    "margin-desktop": "auto",
+                    "md": "24px"
+            },
+            "fontFamily": {
+                    "body-lg": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "label-md": ["Inter"],
+                    "body-md": ["Inter"],
+                    "headline-lg": ["Plus Jakarta Sans"],
+                    "headline-lg-mobile": ["Plus Jakarta Sans"],
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "display-lg": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "label-sm": ["12px", {"lineHeight": "1.2", "fontWeight": "500"}],
+                    "label-md": ["14px", {"lineHeight": "1.2", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "1.3", "fontWeight": "700"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "1.3", "fontWeight": "700"}],
+                    "headline-md": ["24px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                    "display-lg": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .progress-shimmer {
+            background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .blur-backdrop {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .pulse-glow {
+            animation: pulse 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.02); }
+        }
+        .scanning-line {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #88d982, transparent);
+            box-shadow: 0 0 15px #88d982;
+            position: absolute;
+            width: 100%;
+            top: 0;
+            animation: scan 3s ease-in-out infinite;
+        }
+        @keyframes scan {
+            0% { top: 10%; opacity: 0; }
+            50% { opacity: 1; }
+            100% { top: 90%; opacity: 0; }
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md selection:bg-primary-fixed-dim">
+<!-- Top Navigation -->
+<header class="w-full top-0 sticky z-40 bg-surface dark:bg-on-background shadow-sm">
+<div class="flex items-center justify-between px-margin-mobile py-base w-full max-w-max-width mx-auto">
+<div class="flex items-center gap-base">
+<button class="active:scale-95 transition-transform text-primary dark:text-primary-fixed">
+<span class="material-symbols-outlined">close</span>
+</button>
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed">EcoScan AI</h1>
+</div>
+<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden border border-outline-variant">
+<img alt="User Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCItqIXrsTk_6by3PH88MYq8pqldmxrLXqWiP_ZMKAR3Sw6OXOf0WnkscQeThLsyIeEQ9Wg8EuxaeBgjta-DAqOdQubdWa5dSqcq-3XBkmLnAxr6SLbdR104KaroYfGwmP_mLLPoqTRhEdVUA9Kcx_jE-3zxtBQ1SgC_EupbT72AD6v5ixZCdxWq2HKS4GLT13Qv9oJRF0oqmsNrit0gjQU_YVopRmoo6XuUymQ06YSk-dfKd-hqg04Eikddfk9pFOY59HfhxJsMWYl"/>
+</div>
+</div>
+</header>
+<main class="relative min-h-[calc(100vh-140px)] flex items-center justify-center overflow-hidden px-margin-mobile py-lg">
+<!-- Blurred Background Image Container -->
+<div class="absolute inset-0 z-0">
+<img class="w-full h-full object-cover blur-md brightness-[0.85]" data-alt="A high-quality studio photograph of a single clear plastic water bottle placed on a minimalist recycled paper surface. The background is a soft, artistic blur of organic green tones and warm earth browns, creating a clean environmental aesthetic. Gentle, diffused morning light illuminates the bottle's texture and transparency. The overall mood is high-tech yet ecologically conscious and tranquil." src="https://lh3.googleusercontent.com/aida-public/AB6AXuATGZKfdOVCz5ur75bFG5jbGPZF8F4NyjyVZyDN_QAqYsHaSnvl3D29tKZkRekAg7RjHoOVCCXdMEmTWd_Ohni1OqEN9e61IZyfMOIHzHbqn9mSyVuXjkUizfqkFRBfRbgpiCuzrApc6I1fFeh5sQudxnU8sH2Hd28oNB71lXnqUdrEuPmndDArqw8U5GPX7jrkY46mJr4gJ5NdzKL55J38XxtTv5iyvkFki610CKb1cXJ6P2xYKj0HMmJXRnup5cxhHis5yUD_dNhB"/>
+<div class="absolute inset-0 bg-gradient-to-b from-transparent via-background/40 to-background/80"></div>
+<div class="scanning-line"></div>
+</div>
+<!-- Analysis HUD -->
+<section class="relative z-10 w-full max-w-[400px]">
+<div class="blur-backdrop bg-surface-container-lowest/80 border border-outline-variant/30 rounded-[2rem] p-md shadow-2xl pulse-glow">
+<!-- Status Header -->
+<div class="flex flex-col items-center mb-lg">
+<div class="w-16 h-16 bg-primary-container rounded-full flex items-center justify-center mb-base">
+<span class="material-symbols-outlined text-[32px] text-on-primary-container" style="font-variation-settings: 'FILL' 1;">eco</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-xs">Menganalisis Sampah...</h2>
+<div class="flex items-center gap-xs">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+<span class="font-label-md text-label-md text-on-surface-variant">AI Vision Aktif</span>
+</div>
+</div>
+<!-- Progress Section -->
+<div class="space-y-sm mb-lg">
+<div class="flex justify-between items-end">
+<span class="font-label-md text-label-md text-on-surface-variant">Kemajuan Analisis</span>
+<span class="font-headline-md text-headline-md text-primary font-bold">92%</span>
+</div>
+<div class="h-4 w-full bg-surface-container-high rounded-full overflow-hidden p-[2px]">
+<div class="h-full bg-primary rounded-full relative transition-all duration-500 ease-out" style="width: 92%;">
+<div class="absolute inset-0 progress-shimmer"></div>
+</div>
+</div>
+</div>
+<!-- Metadata Bento Row -->
+<div class="grid grid-cols-2 gap-sm">
+<div class="bg-surface-container-low/50 p-sm rounded-xl border border-outline-variant/20">
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-xs">Akurasi</p>
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-primary text-[20px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+<span class="font-label-md text-label-md text-on-surface font-bold">Tinggi</span>
+</div>
+</div>
+<div class="bg-surface-container-low/50 p-sm rounded-xl border border-outline-variant/20">
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-xs">Material</p>
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-secondary text-[20px]">layers</span>
+<span class="font-label-md text-label-md text-on-surface font-bold">PET Plastic</span>
+</div>
+</div>
+</div>
+<!-- Micro-copy -->
+<p class="mt-md text-center font-label-sm text-label-sm text-on-surface-variant/80 px-base">
+                    Tunggu sebentar, kami sedang menentukan jalur daur ulang terbaik untuk objek ini.
+                </p>
+</div>
+</section>
+</main>
+<!-- Bottom Navbar - Mocked from Shared Components -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-base py-sm bg-surface-container dark:bg-inverse-surface border-t border-outline-variant shadow-lg rounded-t-xl md:hidden">
+<a class="flex flex-col items-center justify-center bg-primary-container dark:bg-primary text-on-primary-container dark:text-on-primary rounded-full px-4 py-1 active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">photo_camera</span>
+<span class="font-label-sm text-label-sm">Scan</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant px-4 py-1 hover:bg-surface-container-highest dark:hover:bg-surface-variant active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">receipt_long</span>
+<span class="font-label-sm text-label-sm">History</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant px-4 py-1 hover:bg-surface-container-highest dark:hover:bg-surface-variant active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">distance</span>
+<span class="font-label-sm text-label-sm">Map</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant px-4 py-1 hover:bg-surface-container-highest dark:hover:bg-surface-variant active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-sm text-label-sm">Profile</span>
+</a>
+</nav>
+<script>
+        // Simple micro-interaction for progress simulation
+        document.addEventListener('DOMContentLoaded', () => {
+            const progressBar = document.querySelector('.bg-primary.rounded-full');
+            const percentText = document.querySelector('.text-primary.font-bold');
+            let progress = 92;
+
+            const interval = setInterval(() => {
+                if (progress < 99) {
+                    progress += Math.random() * 0.5;
+                    progressBar.style.width = `${progress}%`;
+                    percentText.innerText = `${Math.floor(progress)}%`;
+                } else {
+                    clearInterval(interval);
+                }
+            }, 800);
+        });
+    </script>
+</body></html>

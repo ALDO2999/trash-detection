@@ -48,7 +48,7 @@ export default function OtpScreen() {
   const handleVerify = () => {
     const code = otp.join('');
     if (code.length === OTP_LENGTH) {
-      router.replace('/(auth)/login');
+      router.replace('/(auth)/profile-setup');
     }
   };
 

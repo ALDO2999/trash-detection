@@ -4,6 +4,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -43,7 +44,11 @@ export default function LoginScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={styles.flex}
       >
-        <View style={styles.content}>
+        <ScrollView
+          contentContainerStyle={styles.content}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
           {/* Hero */}
           <View style={styles.hero}>
             <View style={styles.logoContainer}>
@@ -140,7 +145,7 @@ export default function LoginScreen() {
               <Text style={styles.registerLink}>Daftar Sekarang</Text>
             </Pressable>
           </View>
-        </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -177,8 +182,8 @@ const styles = StyleSheet.create({
   pressed: { opacity: 0.7 },
 
   content: {
-    flex: 1, paddingHorizontal: 24,
-    justifyContent: 'center', gap: 28, paddingBottom: 32,
+    flexGrow: 1, paddingHorizontal: 24,
+    justifyContent: 'center', gap: 28, paddingTop: 24, paddingBottom: 32,
   },
 
   hero: { alignItems: 'center', gap: 10 },

@@ -45,12 +45,18 @@ export default function UserLayout() {
         }}
       />
       <Tabs.Screen
+        name="leaderboard"
+        options={{
+          title: 'Peringkat',
+          tabBarIcon: ({ color, focused }) => (
+            <TabIcon name="leaderboard" color={color} focused={focused} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="claims"
         options={{
-          title: 'Klaim',
-          tabBarIcon: ({ color, focused }) => (
-            <TabIcon name="assignment" color={color} focused={focused} />
-          ),
+          href: null,
         }}
       />
       <Tabs.Screen

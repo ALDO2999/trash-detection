@@ -34,14 +34,12 @@ export default function UserDashboard() {
             <MaterialIcons name="recycling" size={24} color={Colors.primary} />
             <Text style={styles.logoText}>WasteSort AI</Text>
           </View>
-          <View style={styles.topBarActions}>
-            <Pressable style={styles.iconBtn}>
-              <MaterialIcons name="notifications-none" size={24} color={Colors.onSurface} />
-            </Pressable>
-            <View style={styles.avatar}>
-              <Text style={styles.avatarText}>{user.avatarInitials}</Text>
-            </View>
-          </View>
+          <Pressable
+            style={({ pressed }) => [styles.avatar, pressed && styles.pressed]}
+            onPress={() => router.push('/(user)/profile')}
+          >
+            <Text style={styles.avatarText}>{user.avatarInitials}</Text>
+          </Pressable>
         </View>
 
         {/* ── Greeting ── */}
@@ -227,8 +225,6 @@ const styles = StyleSheet.create({
   },
   logoRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   logoText: { fontFamily: 'PlusJakartaSans_700Bold', fontSize: 18, color: Colors.primary },
-  topBarActions: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  iconBtn: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },
   avatar: {
     width: 36, height: 36, borderRadius: 18,
     backgroundColor: Colors.primaryContainer,

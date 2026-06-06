@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EcoScan AI - Drop-off QR</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .glass-overlay {
+            backdrop-filter: blur(12px);
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+        @keyframes pulse-soft {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(0.98); }
+        }
+        .timer-pulse {
+            animation: pulse-soft 2s infinite ease-in-out;
+        }
+    </style>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-highest": "#e1e3e4",
+                    "primary-container": "#2e7d32",
+                    "on-surface-variant": "#40493d",
+                    "surface-dim": "#d9dadb",
+                    "on-secondary-container": "#795548",
+                    "on-primary-fixed-variant": "#005312",
+                    "on-primary": "#ffffff",
+                    "surface-container-high": "#e7e8e9",
+                    "on-secondary": "#ffffff",
+                    "on-tertiary-container": "#ffefd6",
+                    "surface-container": "#edeeef",
+                    "on-tertiary-fixed": "#261a00",
+                    "secondary-container": "#fdcdbc",
+                    "on-secondary-fixed-variant": "#603f33",
+                    "secondary": "#7a5649",
+                    "primary-fixed": "#a3f69c",
+                    "outline-variant": "#bfcaba",
+                    "primary": "#0d631b",
+                    "surface-bright": "#f8f9fa",
+                    "on-background": "#191c1d",
+                    "on-surface": "#191c1d",
+                    "secondary-fixed": "#ffdbcf",
+                    "tertiary-fixed": "#ffdf9e",
+                    "error": "#ba1a1a",
+                    "surface": "#f8f9fa",
+                    "inverse-on-surface": "#f0f1f2",
+                    "tertiary-fixed-dim": "#fabd00",
+                    "primary-fixed-dim": "#88d982",
+                    "surface-variant": "#e1e3e4",
+                    "on-tertiary-fixed-variant": "#5b4300",
+                    "outline": "#707a6c",
+                    "tertiary": "#6d5100",
+                    "secondary-fixed-dim": "#ebbcac",
+                    "on-tertiary": "#ffffff",
+                    "on-primary-fixed": "#002204",
+                    "background": "#f8f9fa",
+                    "surface-tint": "#1b6d24",
+                    "inverse-surface": "#2e3132",
+                    "on-error": "#ffffff",
+                    "surface-container-low": "#f3f4f5",
+                    "error-container": "#ffdad6",
+                    "on-secondary-fixed": "#2e150b",
+                    "on-primary-container": "#cbffc2",
+                    "tertiary-container": "#8c6800",
+                    "surface-container-lowest": "#ffffff",
+                    "inverse-primary": "#88d982",
+                    "on-error-container": "#93000a"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xs": "4px",
+                    "base": "8px",
+                    "xl": "64px",
+                    "max-width": "1200px",
+                    "margin-mobile": "20px",
+                    "lg": "40px",
+                    "sm": "12px",
+                    "gutter": "16px",
+                    "margin-desktop": "auto",
+                    "md": "24px"
+            },
+            "fontFamily": {
+                    "body-lg": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "label-md": ["Inter"],
+                    "body-md": ["Inter"],
+                    "headline-lg": ["Plus Jakarta Sans"],
+                    "headline-lg-mobile": ["Plus Jakarta Sans"],
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "display-lg": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "label-sm": ["12px", {"lineHeight": "1.2", "fontWeight": "500"}],
+                    "label-md": ["14px", {"lineHeight": "1.2", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "1.3", "fontWeight": "700"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "1.3", "fontWeight": "700"}],
+                    "headline-md": ["24px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                    "display-lg": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface font-body-md selection:bg-primary-container selection:text-on-primary-container">
+<!-- Top App Bar -->
+<header class="w-full top-0 sticky z-50 bg-surface shadow-sm">
+<div class="flex items-center justify-between px-margin-mobile py-base w-full max-w-max-width mx-auto">
+<div class="flex items-center gap-base">
+<button class="active:scale-95 transition-transform p-base text-on-surface-variant hover:opacity-80">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<span class="font-headline-md text-headline-md font-bold text-primary">EcoScan AI</span>
+</div>
+<div class="w-10 h-10 rounded-full bg-surface-container-highest overflow-hidden border border-outline-variant">
+<img alt="User" data-alt="A professional close-up studio portrait of a smiling user with soft, warm lighting against a clean, minimalist off-white background. The aesthetic is modern corporate, emphasizing friendliness and trust, perfectly aligning with an eco-conscious tech brand's visual identity. High-quality photography with shallow depth of field." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC5oFfDQoHOONQ4XW4YLhx3hvWmbuk7J0BP1EHyDttO6GGq4L-Yx_bmx-Pb6NKSfhsxaFyY50St4aZfHZxlxV8CTVycnCd7sPO8uhfLuIZeS6zraxL7x2CcwZ41igorlq7AriAlz-JsJRczLQ5WgIyaG-m_oK7ZZBjSK2tGiL03PFwa4_IEHFj-SWgvZgrcFThte-SwP-t5pS5uMtctJi6J6Db2TErh7d1YbyyF5xB9JAs9xa8Om-6zPxJyliVxi3TY6YQcf4p4LE4Y"/>
+</div>
+</div>
+</header>
+<main class="max-w-max-width mx-auto px-margin-mobile py-md pb-xl">
+<!-- Success Confirmation Card -->
+<div class="mb-lg p-md bg-surface-container-low border border-outline-variant rounded-xl shadow-sm flex items-center gap-md animate-in fade-in slide-in-from-top-4 duration-700">
+<div class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined text-3xl" data-icon="check_circle" data-weight="fill" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div>
+<h2 class="font-headline-md text-headline-md text-primary">Berhasil Disubmit!</h2>
+<p class="font-body-md text-on-surface-variant">Langkah terakhir: Serahkan sampah Anda ke petugas.</p>
+</div>
+</div>
+<!-- Main QR Generator Container -->
+<div class="flex flex-col items-center justify-center space-y-md">
+<!-- QR Code Bento Section -->
+<div class="w-full max-w-md bg-surface-container-lowest rounded-[32px] p-lg border border-outline-variant shadow-[0px_4px_20px_rgba(0,0,0,0.04)] text-center relative overflow-hidden">
+<div class="absolute top-0 left-0 w-full h-2 bg-primary"></div>
+<h3 class="font-label-md text-label-md text-on-surface-variant mb-base tracking-widest uppercase">Your Drop-off QR Code</h3>
+<!-- QR Code Representation -->
+<div class="relative group mx-auto mb-md p-md bg-white rounded-xl border border-outline-variant inline-block">
+<img alt="QR Code" class="w-64 h-64 mx-auto" data-alt="A high-contrast, sharp, and modern QR code centered on a clean white square background with soft rounded corners. The surrounding environment is a bright, eco-themed digital interface featuring subtle leafy organic patterns in the negative space. The lighting is bright and even, conveying high-tech precision and environmental responsibility." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAHZ2Ls0Jwq6nw3bRlEpVbpDBAE3tbi_jaz_iPMl0bcceHXRpCMGDW-bderTcjsNzciNBG6H5JWZeJV2xhd6X7BpGIZ04_FFivi4qvTDxhxNQ_MIt1MGHkKgM4bGqvgOjayN_IyI9Ho_aTfJk5-CAU73ec2GxOwe8dG3U9xsAENydNM9gnMrFEexrdJWfdxSaLoL8lKAEJJ6m4Z-QU2ID56YBKYmJJcuFQYMiNP8E3hy0hzUoCNeWHdCpy-ecEKIIckddrL2ULy_iCC"/>
+<div class="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none rounded-xl"></div>
+</div>
+<div class="space-y-xs">
+<p class="font-body-md text-on-surface font-semibold">QR berlaku 2 jam — tunjukkan ke petugas saat drop-off</p>
+<div class="timer-pulse inline-flex items-center gap-xs px-md py-xs bg-error-container text-on-error-container rounded-full mt-base">
+<span class="material-symbols-outlined text-sm" data-icon="timer">timer</span>
+<span class="font-label-md text-label-md" id="countdown">01:59:45</span>
+</div>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="w-full max-w-md flex flex-col gap-base">
+<button class="w-full py-md px-lg bg-primary text-on-primary rounded-full font-label-md text-label-md hover:opacity-90 active:scale-95 transition-all shadow-md flex items-center justify-center gap-base">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+                    Kembali ke Home
+                </button>
+<button class="w-full py-md px-lg border-[1.5px] border-secondary text-secondary bg-transparent rounded-full font-label-md text-label-md hover:bg-secondary-container/20 active:scale-95 transition-all flex items-center justify-center gap-base">
+<span class="material-symbols-outlined" data-icon="download">download</span>
+                    Simpan ke Galeri
+                </button>
+</div>
+<!-- Helper Chips -->
+<div class="flex flex-wrap justify-center gap-xs mt-md">
+<div class="px-md py-xs bg-surface-container-high rounded-full font-label-sm text-label-sm text-on-surface-variant flex items-center gap-xs">
+<span class="material-symbols-outlined text-sm" data-icon="location_on">location_on</span>
+                    EcoPoint Sudirman
+                </div>
+<div class="px-md py-xs bg-surface-container-high rounded-full font-label-sm text-label-sm text-on-surface-variant flex items-center gap-xs">
+<span class="material-symbols-outlined text-sm" data-icon="inventory_2">inventory_2</span>
+                    3 Items
+                </div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-base py-sm bg-surface-container border-t border-outline-variant shadow-lg rounded-t-xl">
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-4 py-1 active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="photo_camera" data-weight="fill" style="font-variation-settings: 'FILL' 1;">photo_camera</span>
+<span class="font-label-sm text-label-sm">Scan</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:bg-surface-container-highest transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
+<span class="font-label-sm text-label-sm">History</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:bg-surface-container-highest transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="distance">distance</span>
+<span class="font-label-sm text-label-sm">Map</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:bg-surface-container-highest transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-sm text-label-sm">Profile</span>
+</a>
+</nav>
+<script>
+        // Simple countdown logic simulation
+        let time = 7185; // 01:59:45 in seconds
+        const countdownEl = document.getElementById('countdown');
+
+        setInterval(() => {
+            if (time <= 0) return;
+            time--;
+            
+            let hours = Math.floor(time / 3600);
+            let mins = Math.floor((time % 3600) / 60);
+            let secs = time % 60;
+            
+            countdownEl.textContent = 
+                `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }, 1000);
+
+        // Micro-interaction for gallery button
+        document.querySelector('button[data-icon="download"]')?.parentElement.addEventListener('click', function() {
+            const btn = this;
+            const originalContent = btn.innerHTML;
+            btn.innerHTML = `<span class="material-symbols-outlined" data-icon="check">check</span> Berhasil Disimpan`;
+            setTimeout(() => {
+                btn.innerHTML = originalContent;
+            }, 2000);
+        });
+    </script>
+</body></html>

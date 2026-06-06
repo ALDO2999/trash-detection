@@ -2,7 +2,6 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  Switch,
   Text,
   View,
 } from 'react-native';
@@ -11,7 +10,6 @@ import { router } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors } from '../../constants/colors';
 import { MOCK_USER } from '../../constants/mockData';
-import { useState } from 'react';
 
 function MenuItem({
   icon,
@@ -49,8 +47,6 @@ function MenuItem({
 
 export default function ProfileScreen() {
   const user = MOCK_USER;
-  const [pushNotif, setPushNotif] = useState(true);
-  const [emailNotif, setEmailNotif] = useState(false);
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -93,45 +89,33 @@ export default function ProfileScreen() {
         {/* Menu: Akun */}
         <Text style={styles.sectionLabel}>Akun</Text>
         <View style={styles.menuGroup}>
-          <MenuItem icon="edit" label="Edit Profil" subtitle="Ubah nama, foto, dan kota" />
-          <MenuItem icon="email" label="Email" subtitle={user.email} />
-        </View>
-
-        {/* Menu: Notifikasi */}
-        <Text style={styles.sectionLabel}>Notifikasi</Text>
-        <View style={styles.menuGroup}>
           <MenuItem
-            icon="notifications"
-            label="Push Notification"
-            rightElement={
-              <Switch
-                value={pushNotif}
-                onValueChange={setPushNotif}
-                trackColor={{ false: Colors.outlineVariant, true: `${Colors.primary}66` }}
-                thumbColor={pushNotif ? Colors.primary : Colors.outline}
-              />
-            }
-          />
-          <MenuItem
-            icon="mail"
-            label="Email Notification"
-            rightElement={
-              <Switch
-                value={emailNotif}
-                onValueChange={setEmailNotif}
-                trackColor={{ false: Colors.outlineVariant, true: `${Colors.primary}66` }}
-                thumbColor={emailNotif ? Colors.primary : Colors.outline}
-              />
-            }
+            icon="edit"
+            label="Edit Profil"
+            subtitle="Ubah nama, foto, dan kota"
+            onPress={() => router.push('/(settings)/edit-profile')}
           />
         </View>
 
         {/* Menu: Lainnya */}
         <Text style={styles.sectionLabel}>Lainnya</Text>
         <View style={styles.menuGroup}>
-          <MenuItem icon="privacy-tip" label="Privasi & Data" />
-          <MenuItem icon="help-outline" label="Bantuan & FAQ" />
-          <MenuItem icon="info-outline" label="Tentang Aplikasi" subtitle="Versi 1.0.0" />
+          <MenuItem
+            icon="privacy-tip"
+            label="Privasi & Data"
+            onPress={() => router.push('/(settings)/privacy')}
+          />
+          <MenuItem
+            icon="help-outline"
+            label="Bantuan & FAQ"
+            onPress={() => router.push('/(settings)/faq')}
+          />
+          <MenuItem
+            icon="info-outline"
+            label="Tentang Aplikasi"
+            subtitle="Versi 1.0.0"
+            onPress={() => router.push('/(settings)/about')}
+          />
         </View>
 
         {/* Switch to Officer (demo) */}

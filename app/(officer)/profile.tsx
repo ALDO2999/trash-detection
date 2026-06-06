@@ -66,6 +66,30 @@ export default function OfficerProfileScreen() {
           </Pressable>
         </View>
 
+        <Text style={styles.sectionLabel}>Lainnya</Text>
+        <View style={styles.menuGroup}>
+          <Pressable
+            style={({ pressed }) => [styles.menuItem, pressed && styles.pressed]}
+            onPress={() => router.push('/(settings)/faq')}
+          >
+            <View style={styles.menuIcon}>
+              <MaterialIcons name="help-outline" size={18} color={Colors.primary} />
+            </View>
+            <Text style={styles.menuLabel}>Bantuan & FAQ</Text>
+            <MaterialIcons name="chevron-right" size={18} color={Colors.outline} />
+          </Pressable>
+          <Pressable
+            style={({ pressed }) => [styles.menuItem, pressed && styles.pressed]}
+            onPress={() => router.push('/(settings)/about')}
+          >
+            <View style={styles.menuIcon}>
+              <MaterialIcons name="info-outline" size={18} color={Colors.primary} />
+            </View>
+            <Text style={styles.menuLabel}>Tentang Aplikasi</Text>
+            <MaterialIcons name="chevron-right" size={18} color={Colors.outline} />
+          </Pressable>
+        </View>
+
         <View style={styles.menuGroup}>
           <Pressable
             style={({ pressed }) => [styles.menuItem, pressed && styles.pressed]}

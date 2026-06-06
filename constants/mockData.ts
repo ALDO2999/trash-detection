@@ -78,6 +78,34 @@ export function getWasteCategory(type: WasteType): WasteCategory {
   return WASTE_CATEGORIES.find((c) => c.id === type)!;
 }
 
+// ─── Teachable Machine model classes ─────────────────────────────────────────
+// Label keluaran model (sesuai kelas pada metadata.json) → WasteType internal.
+// Saat model diintegrasikan, hasil prediksi (string) dipetakan lewat fungsi ini.
+export const MODEL_CLASS_MAP: Record<string, WasteType> = {
+  battery: 'Battery',
+  cardboard: 'Cardboard',
+  metal_can: 'Metal',
+  plastic_bottle: 'Plastic',
+  paper: 'Paper',
+  shoes: 'Shoes',
+  clothes: 'Clothes',
+};
+
+// Urutan kelas sesuai model Teachable Machine (untuk referensi indeks output).
+export const MODEL_CLASSES = [
+  'battery',
+  'cardboard',
+  'metal_can',
+  'plastic_bottle',
+  'paper',
+  'shoes',
+  'clothes',
+] as const;
+
+export function mapModelClass(label: string): WasteType | null {
+  return MODEL_CLASS_MAP[label.toLowerCase().trim()] ?? null;
+}
+
 export function calcPoints(type: WasteType, weightKg: number): number {
   return Math.round(getWasteCategory(type).pointsPerKg * weightKg);
 }
@@ -232,6 +260,33 @@ export const MOCK_OFFICER_QUEUE: Submission[] = [
     submittedAt: '2026-06-04T07:00:00Z',
     status: 'MENUNGGU_VERIFIKASI',
   },
+];
+
+// ─── Leaderboard ─────────────────────────────────────────────────────────────
+
+export interface LeaderboardEntry {
+  id: string;
+  name: string;
+  points: number;
+  level: string;
+  avatarInitials: string;
+  avatarColor: string;
+  isCurrentUser?: boolean;
+}
+
+// Sorted by points (desc). MOCK_USER (Alex Pratama) sits at rank 5 — consistent
+// with MOCK_USER.rank and MOCK_USER.points.
+export const MOCK_LEADERBOARD: LeaderboardEntry[] = [
+  { id: 'l1', name: 'Budi Santoso',  points: 4820, level: 'Eco Legend',  avatarInitials: 'BS', avatarColor: '#0d631b' },
+  { id: 'l2', name: 'Sarah Kusuma',  points: 3675, level: 'Eco Master',  avatarInitials: 'SK', avatarColor: '#7a5649' },
+  { id: 'l3', name: 'Diana Putri',   points: 3210, level: 'Eco Master',  avatarInitials: 'DP', avatarColor: '#9C27B0' },
+  { id: 'l4', name: 'Reza Pratama',  points: 2890, level: 'Eco Hero',    avatarInitials: 'RP', avatarColor: '#2196F3' },
+  { id: 'u001', name: 'Alex Pratama', points: 2450, level: 'Eco Warrior', avatarInitials: 'AP', avatarColor: '#0d631b', isCurrentUser: true },
+  { id: 'l6', name: 'Siti Aminah',   points: 2180, level: 'Eco Warrior', avatarInitials: 'SA', avatarColor: '#FF9800' },
+  { id: 'l7', name: 'Kevin Wijaya',  points: 1940, level: 'Eco Warrior', avatarInitials: 'KW', avatarColor: '#607D8B' },
+  { id: 'l8', name: 'Maya Sari',     points: 1725, level: 'Eco Rookie',  avatarInitials: 'MS', avatarColor: '#F44336' },
+  { id: 'l9', name: 'Andi Saputra',  points: 1510, level: 'Eco Rookie',  avatarInitials: 'AS', avatarColor: '#FF5722' },
+  { id: 'l10', name: 'Lina Marlina', points: 1320, level: 'Eco Rookie',  avatarInitials: 'LM', avatarColor: '#795548' },
 ];
 
 // ─── Stats per waste type (user dashboard) ───────────────────────────────────

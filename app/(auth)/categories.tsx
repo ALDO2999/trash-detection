@@ -31,7 +31,7 @@ export default function CategoriesScreen() {
   };
 
   const handleContinue = () => {
-    router.replace('/');
+    router.replace('/(user)');
   };
 
   return (
@@ -54,13 +54,6 @@ export default function CategoriesScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {/* Progress */}
-        <View style={styles.progressRow}>
-          <View style={[styles.progressBar, styles.progressActive]} />
-          <View style={styles.progressBar} />
-          <View style={styles.progressBar} />
-        </View>
-
         {/* Headline */}
         <View style={styles.headline}>
           <Text style={styles.title}>Apa yang paling sering{'\n'}kamu kumpulkan?</Text>
