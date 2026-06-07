@@ -47,7 +47,7 @@ export default function AboutScreen() {
               resizeMode="contain"
             />
           </View>
-          <Text style={styles.appName}>EcoPoint</Text>
+          <Text style={styles.appName}>Waste Sort AI</Text>
           <Text style={styles.tagline}>Pengelolaan Sampah Berbasis AI & Reward</Text>
           <View style={styles.versionBadge}>
             <Text style={styles.versionText}>Versi 1.0.0</Text>
@@ -58,7 +58,7 @@ export default function AboutScreen() {
         <View style={styles.missionCard}>
           <MaterialIcons name="eco" size={22} color={Colors.primary} />
           <Text style={styles.missionText}>
-            EcoPoint membantu masyarakat memilah sampah, mencatat kontribusi daur ulang, dan
+            Waste Sort AI membantu masyarakat memilah sampah, mencatat kontribusi daur ulang, dan
             mendapatkan reward — menjadikan menjaga bumi sebagai kebiasaan yang menyenangkan.
           </Text>
         </View>
@@ -110,8 +110,8 @@ export default function AboutScreen() {
 
         {/* Footer */}
         <View style={styles.footer}>
-          <Text style={styles.footerText}>Dibuat dengan 💚 oleh Tim EcoPoint</Text>
-          <Text style={styles.footerCopyright}>© 2026 EcoPoint. Hak cipta dilindungi.</Text>
+          <Text style={styles.footerText}>Dibuat dengan 💚 oleh Tim Waste Sort AI</Text>
+          <Text style={styles.footerCopyright}>© 2026 Waste Sort AI. Hak cipta dilindungi.</Text>
         </View>
       </ScrollView>
     </SafeAreaView>

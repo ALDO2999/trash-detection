@@ -183,7 +183,7 @@ export default function ClaimsScreen() {
                   {sub.status === 'DISETUJUI' && estimatedPoints !== null && (
                     <View style={styles.pointsRow}>
                       <MaterialIcons name="stars" size={16} color={Colors.primary} />
-                      <Text style={styles.pointsText}>+{estimatedPoints} EcoPoints diperoleh</Text>
+                      <Text style={styles.pointsText}>+{estimatedPoints} Poin diperoleh</Text>
                     </View>
                   )}
                   {sub.status === 'DITOLAK' && sub.notes && (

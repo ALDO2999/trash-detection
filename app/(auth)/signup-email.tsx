@@ -136,7 +136,7 @@ export default function SignupEmailScreen() {
             {/* Password */}
             <View style={styles.fieldGroup}>
               <Text style={[styles.label, passwordFocused && styles.labelFocused]}>
-                Password Akun EcoPoint
+                Password Akun Waste Sort AI
               </Text>
               <View style={[styles.inputWrapper, passwordFocused && styles.inputFocused]}>
                 <TextInput

@@ -1,6 +1,6 @@
 # Product Requirement Document (PRD)
 
-## EcoPoint – Aplikasi Pengelolaan Sampah Berbasis AI dan Reward
+## Waste Sort AI – Aplikasi Pengelolaan Sampah Berbasis AI dan Reward
 
 ### Version
 
@@ -8,7 +8,7 @@
 
 ### Product Owner
 
-Tim Pengembang EcoPoint
+Tim Pengembang Waste Sort AI
 
 ### Tanggal
 
@@ -20,7 +20,7 @@ Juni 2026
 
 Kesadaran masyarakat terhadap pengelolaan sampah masih relatif rendah. Banyak sampah yang sebenarnya dapat didaur ulang namun berakhir di tempat pembuangan akhir karena kurangnya edukasi dan insentif bagi masyarakat.
 
-EcoPoint hadir sebagai platform yang memanfaatkan teknologi Artificial Intelligence (AI) untuk membantu masyarakat mengidentifikasi jenis sampah, mencatat kontribusi daur ulang, serta memperoleh reward berupa poin yang dapat ditukarkan dengan voucher dari merchant mitra.
+Waste Sort AI hadir sebagai platform yang memanfaatkan teknologi Artificial Intelligence (AI) untuk membantu masyarakat mengidentifikasi jenis sampah, mencatat kontribusi daur ulang, serta memperoleh reward berupa poin yang dapat ditukarkan dengan voucher dari merchant mitra.
 
 ---
 

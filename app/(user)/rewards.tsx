@@ -84,7 +84,7 @@ export default function RewardsScreen() {
 
     Alert.alert(
       'Tukar Voucher',
-      `Tukar ${voucher.pointCost} EcoPoints dengan ${voucher.name} (${formatRupiah(voucher.value)})?`,
+      `Tukar ${voucher.pointCost} Poin dengan ${voucher.name} (${formatRupiah(voucher.value)})?`,
       [
         { text: 'Batal', style: 'cancel' },
         {
@@ -133,7 +133,7 @@ export default function RewardsScreen() {
             ) : (
               <Text style={styles.pointsValue}>{pointBalance.toLocaleString()}</Text>
             )}
-            <Text style={styles.pointsLabel}>EcoPoints tersedia</Text>
+            <Text style={styles.pointsLabel}>Poin tersedia</Text>
           </View>
         </View>
         <View style={styles.pointsHint}>

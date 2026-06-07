@@ -98,7 +98,7 @@ export default function OtpScreen() {
         >
           <MaterialIcons name="arrow-back" size={24} color={Colors.primary} />
         </Pressable>
-        <Text style={styles.headerTitle}>EcoPoint</Text>
+        <Text style={styles.headerTitle}>Waste Sort AI</Text>
         <View style={styles.headerSpacer} />
       </View>
 

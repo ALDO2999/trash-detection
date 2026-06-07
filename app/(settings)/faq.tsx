@@ -78,7 +78,7 @@ export default function FaqScreen() {
           </View>
           <Text style={styles.heroTitle}>Ada yang bisa kami bantu?</Text>
           <Text style={styles.heroSubtitle}>
-            Temukan jawaban dari pertanyaan yang sering diajukan seputar EcoPoint.
+            Temukan jawaban dari pertanyaan yang sering diajukan seputar Waste Sort AI.
           </Text>
         </View>
 
@@ -116,7 +116,7 @@ export default function FaqScreen() {
             </View>
             <View style={styles.contactInfo}>
               <Text style={styles.contactTitle}>Email Dukungan</Text>
-              <Text style={styles.contactSub}>support@ecopoint.id</Text>
+              <Text style={styles.contactSub}>support@wastesortai.id</Text>
             </View>
             <MaterialIcons name="chevron-right" size={20} color={Colors.outline} />
           </Pressable>

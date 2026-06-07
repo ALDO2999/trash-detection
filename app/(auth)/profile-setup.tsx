@@ -36,7 +36,7 @@ export default function ProfileSetupScreen() {
       <View style={styles.header}>
         <View style={styles.logoRow}>
           <MaterialIcons name="eco" size={24} color={Colors.primary} />
-          <Text style={styles.headerTitle}>EcoPoint</Text>
+          <Text style={styles.headerTitle}>Waste Sort AI</Text>
         </View>
         <Pressable
           onPress={() => router.replace('/(auth)/categories')}

@@ -261,7 +261,7 @@ export default function ScanScreen() {
             Izin Kamera Diperlukan
           </Text>
           <Text style={{ fontFamily: 'Inter_400Regular', fontSize: 14, color: 'rgba(255,255,255,0.7)', textAlign: 'center', lineHeight: 21 }}>
-            EcoPoint memerlukan akses kamera untuk mendeteksi jenis sampah secara otomatis menggunakan AI.
+            Waste Sort AI memerlukan akses kamera untuk mendeteksi jenis sampah secara otomatis menggunakan AI.
           </Text>
           <Pressable
             onPress={requestCameraPermission}
@@ -840,7 +840,7 @@ export default function ScanScreen() {
         <View style={styles.qrFooterRow}>
           <View style={styles.qrFooterChip}>
             <MaterialIcons name="place" size={13} color={Colors.onSurfaceVariant} />
-            <Text style={styles.qrFooterChipText}>EcoPoint Sudirman</Text>
+            <Text style={styles.qrFooterChipText}>Waste Sort AI Sudirman</Text>
           </View>
           <View style={styles.qrFooterChip}>
             <MaterialIcons name="inventory" size={13} color={Colors.onSurfaceVariant} />

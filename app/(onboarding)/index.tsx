@@ -28,7 +28,7 @@ const slides = [
   },
   {
     id: '2',
-    badge: 'EcoPoints',
+    badge: 'Poin',
     badgeEmoji: '🏆',
     title: 'Setiap Sampah\nBernilai',
     subtitle: 'Kumpulkan poin dari setiap sampah yang kamu pilah dan tukarkan dengan berbagai reward menarik.',
@@ -103,7 +103,7 @@ export default function OnboardingScreen() {
       <View style={styles.header}>
         <View style={styles.logoRow}>
           <MaterialIcons name="recycling" size={28} color={Colors.primary} />
-          <Text style={styles.logoText}>EcoPoint</Text>
+          <Text style={styles.logoText}>Waste Sort AI</Text>
         </View>
         <Pressable onPress={handleSkip} style={({ pressed }) => pressed && styles.pressed}>
           <Text style={styles.skipText}>Lewati</Text>

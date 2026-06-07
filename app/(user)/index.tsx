@@ -106,7 +106,7 @@ export default function UserDashboard() {
         <View style={styles.topBar}>
           <View style={styles.logoRow}>
             <MaterialIcons name="recycling" size={24} color={Colors.primary} />
-            <Text style={styles.logoText}>EcoPoint</Text>
+            <Text style={styles.logoText}>Waste Sort AI</Text>
           </View>
           <Pressable
             style={({ pressed }) => [styles.avatar, pressed && styles.pressed]}
@@ -126,7 +126,7 @@ export default function UserDashboard() {
         <View style={styles.pointsCard}>
           <View style={styles.pointsCardHeader}>
             <View>
-              <Text style={styles.pointsLabel}>Total EcoPoints</Text>
+              <Text style={styles.pointsLabel}>Total Poin</Text>
               <Text style={styles.pointsValue}>{pts.toLocaleString()}</Text>
             </View>
             <View style={styles.levelPillCard}>

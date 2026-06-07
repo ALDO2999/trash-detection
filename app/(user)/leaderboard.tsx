@@ -118,7 +118,7 @@ export default function LeaderboardScreen() {
             <RefreshControl refreshing={refreshing} onRefresh={() => load(true)} colors={[Colors.primary]} />
           }
         >
-          <Text style={styles.subtitle}>Peringkat berdasarkan total EcoPoints</Text>
+          <Text style={styles.subtitle}>Peringkat berdasarkan total Poin</Text>
 
           {entries.length === 0 ? (
             <View style={styles.emptyBox}>

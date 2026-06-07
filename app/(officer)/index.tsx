@@ -128,7 +128,7 @@ export default function OfficerDashboard() {
             <View style={styles.statusDot} />
             <Text style={styles.statusText}>AI Detection System Online</Text>
           </View>
-          <Text style={styles.statusSub}>Model aktif · EcoPoint v1.0</Text>
+          <Text style={styles.statusSub}>Model aktif · Waste Sort AI v1.0</Text>
         </View>
 
         {/* Recent Pending Queue */}
